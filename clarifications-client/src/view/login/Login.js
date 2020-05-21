@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 
 import { useSelector, useDispatch } from 'react-redux';
-import { doLogin, selectUser } from './userSlice';
+import { doLogin, selectUser } from '../../model/userSlice';
 import style from './Login.module.css';
 
 export function Login() {

@@ -6,6 +6,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser')
 
 const authRouter = require('./routers/authRouter.js');
+const updateRouter = require('./routers/updateRouter.js');
+const threadRouter = require('./routers/threadRouter.js');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -26,4 +28,6 @@ app.use((req, res, next) => {
 })
 
 app.use('/auth', authRouter)
+app.use('/update', updateRouter)
+app.use('/thread', threadRouter)
 app.listen(config.PORT, () => console.log(`Clarification Server listening on port ${config.PORT}!`));

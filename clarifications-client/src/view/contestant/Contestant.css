@@ -1,0 +1,36 @@
+.overview {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.titleText {
+  font-size: 1.15rem;
+}
+.extraInfoText {
+  font-size: 0.85rem;
+  margin-top: -5px;
+  padding-bottom: 5px;
+}
+
+.answered {
+  background-color: #12bbada4;
+}
+
+.messageFragment {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.replyFragment {
+  margin-top: 30px;
+}
+.message {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.timeDateInfo {
+  text-align: right;
+}
+
+#newQuestion {
+  float: right;
+}
