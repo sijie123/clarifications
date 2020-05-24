@@ -7,6 +7,7 @@ CREATE TABLE threads (
     subject TEXT NOT NULL,
     title TEXT NOT NULL,
     status TEXT NOT NULL,
+    isAnnouncement BOOLEAN NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     contestantID VARCHAR(50) NOT NULL REFERENCES users(username)
@@ -41,15 +42,43 @@ BEGIN
 END; $$
 LANGUAGE plpgsql;
 
+CREATE OR REPLACE function threads_auto_status()
+RETURNS TRIGGER AS $$
+DECLARE
+userrole   VARCHAR(20);
+BEGIN
+    SELECT role INTO userrole
+    FROM users INNER JOIN usergroups USING(groupname)
+    WHERE username = NEW.creatorID;
+
+    IF NEW.isExternal = FALSE THEN
+        RETURN NEW;
+    END IF;
+
+    IF userrole = 'CONTESTANT' THEN
+        UPDATE threads SET status = 'Awaiting Answer' WHERE threads.id = NEW.threadID;
+    ELSE
+        UPDATE threads SET status = NEW.contents WHERE threads.id = NEW.threadID;
+    END IF;
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+
 CREATE TRIGGER messages_timestamp
-AFTER UPDATE OR INSERT ON messages
+BEFORE UPDATE OR INSERT ON messages
 FOR EACH ROW
 EXECUTE PROCEDURE messages_auto_timestamp();
 
 CREATE TRIGGER threads_timestamp
-AFTER UPDATE OR INSERT ON threads
+BEFORE UPDATE OR INSERT ON threads
 FOR EACH ROW
 EXECUTE PROCEDURE threads_auto_timestamp();
+
+CREATE TRIGGER threads_status
+BEFORE UPDATE OR INSERT ON messages
+FOR EACH ROW
+EXECUTE PROCEDURE threads_auto_status();
 
 
 CREATE TABLE threadsaccess (

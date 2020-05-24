@@ -4,10 +4,9 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage for 
 import userReducer from './userSlice';
 import clarificationDataReducer from './clarificationDataSlice';
 
-
 const reducers = combineReducers({
   user: userReducer,
-  clarificationData: clarificationDataReducer
+  clarificationData: clarificationDataReducer,
 })
 
 const persistConfig = {

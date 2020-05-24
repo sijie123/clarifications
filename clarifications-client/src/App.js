@@ -13,7 +13,6 @@ function App() {
     <BrowserRouter>
       <Switch>
         <Route exact path='/' render={() => {
-          // return "Hi you are logged in";
           if (user.isLoggedIn) return <MainUI />;
           else return <Redirect to="/login" />;
         }} />

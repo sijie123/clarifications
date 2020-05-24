@@ -1,0 +1,70 @@
+.titleText {
+  font-size: 1.15rem;
+}
+.extraInfoText {
+  font-size: 0.85rem;
+  margin-top: -5px;
+  padding-bottom: 5px;
+}
+
+.messageFragment {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.replyFragment {
+  margin-top: 30px;
+}
+.message {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.timeDateInfo {
+  text-align: right;
+}
+
+#newQuestion {
+  float: right;
+}
+
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overviewGroup .overviewEntry {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-top: 1px solid #91919196;
+}
+
+.overviewGroup .overviewEntry:nth-of-type(even) {
+  background: white;
+}
+.overviewGroup .overviewEntry:nth-of-type(odd) {
+  background: #f8f9fa;
+}
+
+.answered {
+  background-color: #12bbada4 !important;
+}
+
+.bg-selected {
+  background-color: #007bff !important;
+}
+.answered.bg-selected, .bg-selected .text-muted {
+  color: #d4d3d3 !important;
+}
+.answered.bg-selected, .bg-selected .titleText {
+  color: #e7e7e7 !important;
+}
+
+.bg-externalComms {
+  background-color: rgba(248, 245, 214, 0.603);
+}
+
+.bg-internalComms {
+  background-color: rgba(214, 243, 248, 0.473);
+}
+

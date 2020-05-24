@@ -9,18 +9,38 @@ import { Committee } from '../committee/Committee'
 import React, {useEffect} from 'react';
 import { useHistory } from "react-router-dom";
 
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../../model/userSlice';
+import { checkForUpdates, requestUpdate, selectClarificationData } from '../../model/clarificationDataSlice';
 
 import styles from './MainUI.module.css';
 
 export function MainUI() {
   const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+  const clarificationData = useSelector(selectClarificationData);
   const history = useHistory();
+  
 
   useEffect(() => {
     if (!user.isLoggedIn) history.push('/');
   }, [user])
+
+  useEffect(() => {
+    if (!clarificationData.shouldUpdate) return;
+    dispatch(checkForUpdates())
+    .catch(err => {
+      console.log(err);
+    })
+  }, [clarificationData.shouldUpdate]);
+
+  useEffect(() => {
+    dispatch(requestUpdate());
+    const timer = setInterval(() => {
+      dispatch(requestUpdate());
+    }, 5000);
+  }, []);
+
 
   return (
     <div>

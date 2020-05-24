@@ -17,10 +17,26 @@ const authMiddleware = async (req, res, next) => {
   }
 }
 
-const truncate = (input) => {
-  if (input.length <= 100) return input;
-  return input.slice(0, 97) + "..."; 
+const canPost = async (req, res, next) => {
+  return db.one("SELECT 1 FROM threads WHERE contestantID = $1 AND id = $2\
+          UNION \
+          SELECT 1 FROM threads \
+          INNER JOIN threadsaccess ON (threads.id = threadsaccess.threadID) \
+          INNER JOIN users USING (groupname) \
+          WHERE users.username = $1 \
+          AND threads.id = $2", [req.body.username, req.params.threadID])
+    .then(exists => {
+      next();
+    }).catch(err => {
+      console.log(err);
+      return res.failure(new errors.ClientError("Thread doesn't exist!")); // Say thread doesn't exist, instead of no permission. We don't want user to know thread exists!
+    })
 }
+
+// const truncate = (input) => {
+//   if (input.length <= 100) return input;
+//   return input.slice(0, 97) + "..."; 
+// }
 threadRouter.post('/:threadID/', [
   body('content').exists().notEmpty(),
   param('threadID').custom(threadID => {
@@ -30,9 +46,9 @@ threadRouter.post('/:threadID/', [
         throw new Error("Thread doesn't exist!");
       })
   })
-], validate, authMiddleware, async (req, res) => {
+], validate, authMiddleware, canPost, async (req, res) => {
   //Already authenticated
-  if (req.body.isExternal === undefined) req.body.isExternal = true;
+  if (req.body.isExternal === undefined) {console.warn("isExternal is missing"); req.body.isExternal = true;}
   db.one("INSERT INTO messages(threadID, contents, contentType, creatorID, isExternal) VALUES($1, $2, $3, $4, $5) RETURNING id", [req.params.threadID, req.body.content, 'text', req.body.username, req.body.isExternal])
   .then(result => res.success({
     threadID: req.params.threadID,
@@ -50,19 +66,22 @@ threadRouter.post('/:threadID/', [
   }
   */
 threadRouter.post('/', [
-  body('subject').exists().notEmpty(),
-  body('content').exists().notEmpty(),
+  body('message').custom(message => {
+    if (message.subject === '') throw new errors.ClientError("Message cannot be empty.")
+    if (message.content === '') throw new errors.ClientError("Content cannot be empty.")
+    return true;
+  })
 ], validate, authMiddleware, async (req, res) => {
   //Already authenticated
-  if (req.body.isExternal === undefined) req.body.isExternal = true;
+  if (req.body.message.isAnnouncement === undefined) req.body.message.isAnnouncement = false;
   db.tx(async t => {
-    let result = await t.one("INSERT INTO threads (subject, title, status, contestantID) VALUES ($1, $2, $3, $4) RETURNING id", [req.body.subject, truncate(req.body.content), 'Awaiting Answer', req.body.username])
+    let result = await t.one("INSERT INTO threads (subject, title, status, contestantID, isAnnouncement) VALUES ($1, $2, $3, $4, $5) RETURNING id", [req.body.message.subject, req.body.message.content, 'Awaiting Answer', req.body.username, req.body.message.isAnnouncement])
     let threadID = result['id']
 
     //This step will be done by human dispatcher
     await t.none("INSERT INTO threadsaccess VALUES($1, $2)", [threadID, 'ITC']);
 
-    let messageID = await t.one("INSERT INTO messages(threadID, contents, contentType, creatorID, isExternal) VALUES($1, $2, $3, $4, $5) RETURNING id", [threadID, req.body.content, 'text', req.body.username, req.body.isExternal])
+    let messageID = await t.one("INSERT INTO messages(threadID, contents, contentType, creatorID, isExternal) VALUES($1, $2, $3, $4, $5) RETURNING id", [threadID, req.body.message.content, 'text', req.body.username, true])
     return {
       threadID: threadID,
       messageID: messageID

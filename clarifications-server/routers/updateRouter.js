@@ -26,24 +26,29 @@ updateRouter.post('/', [
   auth.authenticateUserToken(req.body.username, req.body.token)
   .then(() => {
     return db.query("\
-      SELECT array_agg(json_build_object('ID', messages.id, 'content', messages.contents, 'contenttype', messages.contenttype, 'author', users.groupname || ' ' || users.displayname, 'updated', messages.updated, 'isExternal', messages.isExternal)) as messages, threads.ID, threads.status as answer, threads.subject, threads.title, threads.contestantID, threads.created, EXTRACT(EPOCH FROM threads.updated) as updated \
+      WITH userRole AS ( \
+        SELECT auth.username, authgroups.role FROM users as auth \
+        INNER JOIN usergroups AS authgroups USING (groupname) \
+        WHERE auth.username = $1 \
+      ) \
+      SELECT array_agg(json_build_object('ID', messages.id, 'content', messages.contents, 'contenttype', messages.contenttype, 'author', authors.groupname || ' ' || authors.displayname, 'updated', messages.updated, 'isExternal', messages.isExternal)) as messages, threads.ID, threads.status as answer, threads.subject, threads.title, threads.contestantID, threads.created, threads.isAnnouncement, EXTRACT(EPOCH FROM threads.updated) as updated \
       FROM messages \
       INNER JOIN threads ON (messages.threadID = threads.ID) \
-      INNER JOIN users ON (messages.creatorID = users.username) \
-      INNER JOIN usergroups USING (groupname) \
-      WHERE EXISTS ( \
-        SELECT 1 FROM users U2 \
-        INNER JOIN threadsaccess TA2 USING (groupname) \
-        WHERE TA2.threadid = threads.ID \
-        AND U2.username = $1 \
+      INNER JOIN users AS authors ON (messages.creatorID = authors.username) \
+      CROSS JOIN userRole as auth \
+      WHERE auth.username IN ( \
+        SELECT username FROM users U2 \
+        INNER JOIN threadsaccess TA USING (groupname) \
+        WHERE TA.threadid = threads.ID \
         UNION \
-        SELECT 1 \
-        FROM threads T2 \
-        WHERE T2.contestantID = $1 \
-        AND T2.ID = threads.ID \
-      ) \
+        SELECT contestantID FROM threads T2 \
+        WHERE T2.ID = threads.ID \
+        UNION \
+        SELECT username FROM userRole \
+        CROSS JOIN threads T3 \
+        WHERE T3.ID = threads.ID AND T3.isAnnouncement = TRUE \
+      ) AND ( (auth.role <> 'CONTESTANT') OR (auth.role = 'CONTESTANT' AND messages.isExternal = TRUE)) \
       AND threads.updated > TO_TIMESTAMP($2) \
-      AND ( (usergroups.role = 'CONTESTANT' AND messages.isExternal = TRUE) OR (usergroups.role <> 'CONTESTANT') ) \
       GROUP BY threads.id", [req.body.username, req.body.currentUpdateTimestamp])
   })
   .then(newMessages => {
@@ -68,7 +73,7 @@ updateRouter.post('/', [
       //   }
       // }
     });
-    // console.log(formattedData)
+    console.log(formattedData)
     return res.success({threads: formattedData, updated: new Date().getTime() / 1000});
   })
   .catch(err => { console.log(err); res.failure(`${err}`) })

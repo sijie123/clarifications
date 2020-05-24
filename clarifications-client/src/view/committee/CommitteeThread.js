@@ -3,37 +3,33 @@ import InputGroup from 'react-bootstrap/InputGroup'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
-import Accordion from 'react-bootstrap/Accordion'
 import Form from 'react-bootstrap/Form'
 import FormControl from 'react-bootstrap/FormControl'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 
-import {Thread} from "../common/Thread"
+import { replyToThread } from "../../model/clarificationDataSlice";
+
 import { Messages } from "../common/Message";
 
+import { Similarity } from './Similarity';
+
 import React, {useState} from 'react';
-const THREAD_OPEN = 'Awaiting Answer';
+import {useDispatch} from 'react-redux';
 
 export function CommitteeThreadOverview(props) {
-  let threadID = props.threadID;
   let thread = props.thread;
 
-  const populateAnswer = (ans) => {
-    if (ans === THREAD_OPEN) return THREAD_OPEN;
-    else return `Answered: ${ans}`;
-  }
-  
   return (
-      <Row>
-        <Col md={9}>
-          <Card.Text className="mb-0 titleText">{thread.title}</Card.Text>
-          <Card.Text className="extraInfoText text-muted">{thread.subject} | {thread.contestantid} | {thread.created} </Card.Text>
-        </Col>
-        <Col md={3}>
-          <div style={{ textAlign: 'right' }}> <span class="badge badge-danger"> new</span> {populateAnswer(thread.answer)}</div>
-        </Col>
-      </Row>
+    <Row>
+      <Col md={10}>
+        <Card.Text className="mb-0 titleText">{thread.title}</Card.Text>
+        <Card.Text className="extraInfoText text-muted">{thread.subject} | {thread.contestantid} | {thread.created} </Card.Text>
+      </Col>
+      <Col md={2}>
+        <div style={{ textAlign: 'right' }}> {!thread.seen && <span class="badge badge-danger"> new</span>}</div>
+      </Col>
+    </Row>
   )
 }
 
@@ -52,7 +48,7 @@ export function CommitteeThreadReplyQuick(props) {
 }
 
 export function CommitteeExternalThreadReply(props) {
-  const replyAction = props.replyAction;
+  const dispatch = useDispatch();
   const threadID = props.threadID;
 
   const [replyOption, setReplyOption] = useState('Yes');
@@ -60,10 +56,20 @@ export function CommitteeExternalThreadReply(props) {
   const [replyStatus, setReplyStatus] = useState('warning');
   const [replyError, setReplyError] = useState('');
 
+  const submitNewReply = (reply, threadID) => {
+    return new Promise( (resolve, reject) => {
+      dispatch(replyToThread({
+        threadID: threadID,
+        content: reply.replyText,
+        isExternal: reply.isExternal,
+      }, resolve, reject))
+    })
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
     let text = replyOption === "Refer to comments" ? `${replyOption}: ${replyText}` : replyOption;
-    replyAction({
+    submitNewReply({
       replyText: text,
       isExternal: true
     }, threadID)
@@ -112,16 +118,26 @@ export function CommitteeExternalThreadReply(props) {
 }
 
 export function CommitteeInternalThreadReply(props) {
-  const replyAction = props.replyAction;
+  const dispatch = useDispatch();
   const threadID = props.threadID;
 
   const [replyText, setReplyText] = useState('');
   const [replyStatus, setReplyStatus] = useState('primary');
   const [replyError, setReplyError] = useState('');
 
+  const submitNewReply = (reply, threadID) => {
+    return new Promise( (resolve, reject) => {
+      dispatch(replyToThread({
+        threadID: threadID,
+        content: reply.replyText,
+        isExternal: reply.isExternal,
+      }, resolve, reject))
+    })
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault()
-    replyAction({
+    submitNewReply({
       replyText: replyText,
       isExternal: false
     }, threadID)
@@ -160,40 +176,60 @@ export function CommitteeInternalThreadReply(props) {
   )
 }
 
-export function CommitteeThreadDetails(props) {
+export function CommitteeAnnouncementDetails(props) {
   const thread = props.thread;
-  const threadID = props.threadID;
-  const bgcolour = props.bgcolour;
-  const replyAction = props.replyAction;
 
-  let filter = (isExternal) => ( ([, msg]) => (msg.isExternal == isExternal) )
   return (
-    <Card.Body className={bgcolour}>
+    <Card.Body>
       <Row>
-        <Col md={6}>
-          <Messages messages={thread.messages} filter={filter(true)} />
-          <CommitteeExternalThreadReply replyAction={replyAction} threadID={threadID} />
+        <Col md={7} className={'px-2 border-right'}>
+          <div className={'bg-light'} style={{paddingTop: '20px'}}>
+          <Messages messages={thread.messages} />
+          </div>
         </Col>
-        <Col md={6} className={'bg-secondary'}>
-          <Messages messages={thread.messages} filter={filter(false)}/>
-          <CommitteeInternalThreadReply replyAction={replyAction} threadID={threadID} />
+        <Col md={5} className={'px-2 border-left'}>
+          <h4>Announcement</h4>
+          <p>Author: {thread.contestantid}
+             <br />
+             Visibility: All participants & committee</p>
         </Col>
       </Row>
     </Card.Body>
   )
 }
 
-export function CommitteeThread(props) {
+export function CommitteeThreadDetails(props) {
   const thread = props.thread;
-  const threadID = props.id;
-  const posn = props.posn;
-  const replyAction = props.reply;
+  const threadID = props.threadID;
+  const bgcolour = props.bgcolour;
+  const replyAction = props.replyAction;
+  const setCurrentlyFocusedThreadID = props.setCurrentlyFocusedThreadID;
 
+  let filter = (isExternal) => ( ([, msg]) => (msg.isExternal == isExternal) )
   return (
-    <Thread thread={thread} id={threadID} posn={posn} replyAction={replyAction}
-      overviewBox={{class: CommitteeThreadOverview}} 
-      detailsBox={{class: CommitteeThreadDetails}}
-    />
-  )
+    <Card.Body>
+      <Row>
+        <Col md={7} className={'px-2 border-right'}>
+          <div className={'bg-light'} style={{paddingTop: '20px'}}>
+          <Messages messages={thread.messages} filter={filter(true)} />
+          <CommitteeExternalThreadReply replyAction={replyAction} threadID={threadID} />
+          </div>
+        </Col>
+        <Col md={5} className={'px-2 border-left'}>
+          <h4>Basic Information</h4>
+          <p>ContestantID: {thread.contestantid}
+             <br />
+             Visibility: ITC, ISC</p>
+          <h4>Similar Questions</h4>
+          <Similarity title={thread.title} setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID} />
 
+          <h4>Internal Communication</h4>
+          <div className={'bg-internalComms'} style={{paddingTop: '20px'}}>
+            <Messages messages={thread.messages} filter={filter(false)}/>
+            <CommitteeInternalThreadReply replyAction={replyAction} threadID={threadID} />
+          </div>
+        </Col>
+      </Row>
+    </Card.Body>
+  )
 }
