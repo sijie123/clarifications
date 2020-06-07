@@ -39,7 +39,8 @@ export function Committee(props) {
 
   const displayCurrentlyFocusedThread = () => {
     if (currentlyFocusedThreadID == null) return <NothingSelectedThread />;
-    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
+    else if (currentlyFocusedThreadID === 'NewAnnouncement') return <NewThread isAnnouncement={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
+    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={false} allowOnBehalf={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
     let thread = clarificationData.threads[currentlyFocusedThreadID]
     return (
       <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>
@@ -86,7 +87,7 @@ export function Committee(props) {
           <Card className="overviewGroup">
             <Card.Header>
               <h5 class="m-0" className="inline">Announcements</h5>
-              <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewQuestion')}}>New Announcement</Button>
+              <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewAnnouncement')}}>New Announcement</Button>
             </Card.Header>
             {
               Object.entries(clarificationData.threads).filter(searchFilter).filter(onlyAnnouncements).sort(sortIDAsc).map(display)
@@ -96,6 +97,7 @@ export function Committee(props) {
           <Card className="overviewGroup">
             <Card.Header>
               <h5 class="m-0" className="inline">Awaiting Response</h5>
+              <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewQuestion')}}>Post Question On Behalf</Button>
             </Card.Header>
             {
               Object.entries(clarificationData.threads).filter(searchFilter).filter(noAnnouncements).filter(onlyUnanswered).sort(sortIDAsc).map(display)

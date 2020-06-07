@@ -80,7 +80,6 @@ threadRouter.post('/', [
       .catch(err => {
         throw new errors.ClientError("You are not allowed to use the threadCreatedFor API.")  
       })
-
       await t.one("SELECT 1 FROM users WHERE username = $1", [req.body.message.threadCreatedFor])
       .catch(err => {
         throw new errors.ClientError("User specified does not exist.")  

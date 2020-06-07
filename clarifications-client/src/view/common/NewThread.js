@@ -18,6 +18,46 @@ import { useSelector, useDispatch } from 'react-redux';
 import { requestUpdate } from '../../model/clarificationDataSlice';
 import { selectUser } from '../../model/userSlice';
 
+export function FindContestant(props) {
+  const setContestantFor = props.setContestantFor;
+  const user = useSelector(selectUser);
+  const [isLoading, setIsLoading] = useState(false);
+  const [options, setOptions] = useState([]);
+
+  const SEARCH_URI = '/users';
+  const handleSearch = useCallback((query) => {
+    setIsLoading(true);
+
+    axios.post(`${SEARCH_URI}/${query}`, {
+      username: user.username,
+      token: user.token,
+    }).then(usernames => {
+      let options = usernames.data.users;
+      setOptions(options);
+      setIsLoading(false);
+    });
+  });
+
+  return (
+    <Form.Group controlId="forContestant">
+      <Form.Label>Submitting for:</Form.Label>
+      <AsyncTypeahead
+        id="async-example"
+        isLoading={isLoading}
+        labelKey="username"
+        onSearch={handleSearch}
+        onChange={setContestantFor}
+        options={options}
+        placeholder="Search for a contestant..."
+        renderMenuItemChildren={(option, props) => (
+          <div>
+            <span>{option.username} ({option.groupname} {option.displayname})</span>
+          </div>
+        )}
+      />
+    </Form.Group>
+  )
+}
 export function NewThread(props) {
 
   let subjectOptions = props.subjectOptions;
@@ -37,10 +77,15 @@ export function NewThread(props) {
   const [threadStatus, setThreadStatus] = useState('primary');
   const [threadError, setThreadError] = useState('');
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [options, setOptions] = useState([]);
+  
 
   const submitNewThread = async () => {
+    let threadCreatedFor = null;
+    console.log(contestantFor)
+    if (allowOnBehalf && contestantFor !== null) {
+      if (typeof contestantFor === 'string') threadCreatedFor = contestantFor;
+      else threadCreatedFor = contestantFor[0].username;
+    }
     let request = {
       username: user.username,
       token: user.token,
@@ -49,7 +94,7 @@ export function NewThread(props) {
         content: threadText,
         isAnnouncement: isAnnouncement,
         isLogistics: isLogistics,
-        threadCreatedFor: allowOnBehalf ? contestantFor : null, // Will be null if not allowed.
+        threadCreatedFor: threadCreatedFor, // Will be null if not allowed.
       }
     }
     let file = fileInput.current.files[0];
@@ -106,28 +151,6 @@ export function NewThread(props) {
     .catch(err => setError(`${err.message}`));
   }
 
-  const SEARCH_URI = '/users';
-  const handleSearch = useCallback((query) => {
-    console.log("Attempting");
-    setIsLoading(true);
-
-    axios.post(`${SEARCH_URI}/${query}`, {
-      username: user.username,
-      token: user.token,
-    }).then(usernames => {
-      let options = usernames.data.users;
-      // .then(({ items }) => {
-      //   const options = items.map((i) => ({
-      //     avatar_url: i.avatar_url,
-      //     id: i.id,
-      //     login: i.login,
-      //   }));
-      console.log(options);
-      setOptions(options);
-      setIsLoading(false);
-    });
-  });
-
   useEffect(() => {
     bsCustomFileInput.init()
   }, [])
@@ -168,27 +191,9 @@ export function NewThread(props) {
           </Row>
           </Form.Group>
         }
-        <Form.Group controlId="forContestant">
-          {
-            allowOnBehalf &&
-            <>
-              <Form.Label>Submitting for:</Form.Label>
-              <AsyncTypeahead
-                id="async-example"
-                isLoading={isLoading}
-                labelKey="username"
-                onSearch={handleSearch}
-                options={options}
-                placeholder="Search for a contestant..."
-                renderMenuItemChildren={(option, props) => (
-                  <div>
-                    <span>{option.username} ({option.groupname} {option.displayname})</span>
-                  </div>
-                )}
-              />
-            </>
-          }
-        </Form.Group>
+        {
+          allowOnBehalf && <FindContestant setContestantFor={setContestantFor}/>
+        }
         <Form.Group controlId="newQuestionSubject">
           {
             !isLogistics && 
