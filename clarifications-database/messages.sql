@@ -8,9 +8,11 @@ CREATE TABLE threads (
     title TEXT NOT NULL,
     status TEXT NOT NULL,
     isAnnouncement BOOLEAN NOT NULL,
+    isLogistics BOOLEAN NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    contestantID VARCHAR(50) NOT NULL REFERENCES users(username)
+    senderID VARCHAR(50) NOT NULL REFERENCES users(username),
+    creatorID VARCHAR(50) NOT NULL REFERENCES users(username)
 );
 
 CREATE TABLE messages (
@@ -18,6 +20,7 @@ CREATE TABLE messages (
     threadID INTEGER NOT NULL REFERENCES threads(id),
     contents TEXT NOT NULL,
     contentType VARCHAR(64),
+    senderID VARCHAR(50) NOT NULL REFERENCES users(username),
     creatorID VARCHAR(50) NOT NULL REFERENCES users(username),
     isExternal BOOLEAN NOT NULL DEFAULT TRUE,
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -29,6 +32,14 @@ CREATE OR REPLACE function messages_auto_timestamp()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated = NOW();
+    UPDATE threads SET updated = NOW() WHERE threads.id = NEW.threadID;
+    RETURN NEW;
+END; $$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE function threadsaccess_auto_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
     UPDATE threads SET updated = NOW() WHERE threads.id = NEW.threadID;
     RETURN NEW;
 END; $$
@@ -49,7 +60,7 @@ userrole   VARCHAR(20);
 BEGIN
     SELECT role INTO userrole
     FROM users INNER JOIN usergroups USING(groupname)
-    WHERE username = NEW.creatorID;
+    WHERE username = NEW.senderID;
 
     IF NEW.isExternal = FALSE THEN
         RETURN NEW;
@@ -86,3 +97,9 @@ CREATE TABLE threadsaccess (
     groupname VARCHAR(50) NOT NULL REFERENCES usergroups(groupname),
     PRIMARY KEY (threadID, groupname)
 );
+
+
+CREATE TRIGGER threadsaccess_timestamp
+BEFORE UPDATE OR INSERT ON threadsaccess
+FOR EACH ROW
+EXECUTE PROCEDURE threadsaccess_auto_timestamp();

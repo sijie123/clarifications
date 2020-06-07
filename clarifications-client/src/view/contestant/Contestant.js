@@ -16,9 +16,10 @@ import '../common/Common.css';
 
 const THREAD_OPEN = 'Awaiting Answer';
 
-export function Contestant() {
+export function Contestant(props) {
 
   const dispatch = useDispatch();
+  const searchFilter = props.searchFilter;
   const clarificationData = useSelector(selectClarificationData);
 
   let [currentlyFocusedThreadID, setCurrentlyFocusedThreadID] = useState(null);
@@ -53,6 +54,12 @@ export function Contestant() {
   let noAnnouncements = ([,thread]) => {
     return thread.isannouncement == false;
   }
+  let onlyAnswered = ([,thread]) => {
+    return thread.answer !== THREAD_OPEN;
+  }
+  let onlyUnanswered = ([,thread]) => {
+    return thread.answer === THREAD_OPEN;
+  }
   let sortIDDesc = ( [thread1ID,], [thread2ID,] ) => {
     return -(thread1ID - thread2ID);
   }
@@ -65,15 +72,15 @@ export function Contestant() {
   }
 
   return (
-    <Container fluid>
-      <Row>
-        <Col md={5}>
+    <Container fluid className={'flexVertical flexElement'}>
+      <Row style={{flexFlow:'row', minHeight: '100%'}}>
+        <Col md={5} style={{flex: '1 1 auto', overflow: 'auto'}}>
           <Card className="overviewGroup">
             <Card.Header>
               <h5 class="m-0" className="inline">Announcements</h5>
             </Card.Header>
             {
-              Object.entries(clarificationData.threads).filter(onlyAnnouncements).sort(sortIDDesc).map(display)
+              Object.entries(clarificationData.threads).filter(searchFilter).filter(onlyAnnouncements).sort(sortIDDesc).map(display)
             }
           </Card>
           <br />
@@ -83,11 +90,15 @@ export function Contestant() {
               <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewQuestion')}}>New Question</Button>
             </Card.Header>
             {
-              Object.entries(clarificationData.threads).filter(noAnnouncements).sort(sortIDDesc).map(display)
+              Object.entries(clarificationData.threads).filter(searchFilter).filter(noAnnouncements).filter(onlyAnswered).sort(sortIDDesc).map(display)
+            }
+            {
+              Object.entries(clarificationData.threads).filter(searchFilter).filter(noAnnouncements).filter(onlyUnanswered).sort(sortIDDesc).map(display)
             }
           </Card>
+          <br/>
         </Col>
-        <Col md={7}>
+        <Col md={7} style={{flex: '1 1 auto', overflow: 'auto'}}>
           {displayCurrentlyFocusedThread()}
         </Col>
       </Row>

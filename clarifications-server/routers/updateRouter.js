@@ -30,18 +30,24 @@ updateRouter.post('/', [
         SELECT auth.username, authgroups.role FROM users as auth \
         INNER JOIN usergroups AS authgroups USING (groupname) \
         WHERE auth.username = $1 \
+      ), \
+      visibilityArr AS ( \
+        SELECT threadid, array_agg(groupname) as visibility \
+        FROM threadsaccess \
+        GROUP BY threadid \
       ) \
-      SELECT array_agg(json_build_object('ID', messages.id, 'content', messages.contents, 'contenttype', messages.contenttype, 'author', authors.groupname || ' ' || authors.displayname, 'updated', messages.updated, 'isExternal', messages.isExternal)) as messages, threads.ID, threads.status as answer, threads.subject, threads.title, threads.contestantID, threads.created, threads.isAnnouncement, EXTRACT(EPOCH FROM threads.updated) as updated \
+      SELECT array_agg(json_build_object('ID', messages.id, 'content', messages.contents, 'contenttype', messages.contenttype, 'sender', senders.groupname || ' ' || senders.displayname, 'creator', creators.groupname || ' ' || creators.displayname, 'updated', messages.updated, 'isExternal', messages.isExternal)) as messages, threads.ID, threads.status as answer, threads.subject, threads.title, threads.senderID, threads.creatorID, threads.created, threads.isAnnouncement, array_agg(DISTINCT VA.visibility) as visibility, EXTRACT(EPOCH FROM threads.updated) as updated \
       FROM messages \
-      INNER JOIN threads ON (messages.threadID = threads.ID) \
-      INNER JOIN users AS authors ON (messages.creatorID = authors.username) \
+      INNER JOIN (threads INNER JOIN visibilityArr VA ON (threads.id = VA.threadid) ) ON (messages.threadID = threads.ID) \
+      INNER JOIN users AS creators ON (messages.creatorID = creators.username) \
+      INNER JOIN users AS senders ON (messages.senderID = senders.username) \
       CROSS JOIN userRole as auth \
       WHERE auth.username IN ( \
         SELECT username FROM users U2 \
         INNER JOIN threadsaccess TA USING (groupname) \
         WHERE TA.threadid = threads.ID \
         UNION \
-        SELECT contestantID FROM threads T2 \
+        SELECT senderID FROM threads T2 \
         WHERE T2.ID = threads.ID \
         UNION \
         SELECT username FROM userRole \
@@ -54,6 +60,7 @@ updateRouter.post('/', [
   .then(newMessages => {
     let formattedData = newMessages.map(result => {
       result.created = `${strftime('%H:%M:%S', new Date(result.created))}`;
+      result.visibility = result.visibility[0];
       result.messages.map(msg => {
         msg.updated = `${strftime('%H:%M:%S', new Date(msg.updated))}`;
       })

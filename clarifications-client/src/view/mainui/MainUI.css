@@ -1,0 +1,13 @@
+.topMargin {
+    margin-top: 20px;
+}
+
+.flexVertical {
+    display: flex;
+    flex-flow: column;
+    height: 100vh;
+}
+
+.flexElement {
+    min-height: 0;
+}

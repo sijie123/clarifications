@@ -6,7 +6,8 @@ export const clarificationDataSlice = createSlice({
   initialState: {
     threads: {},
     shouldUpdate: false,
-    currentUpdateTimestamp: 0
+    currentUpdateTimestamp: 0,
+    availableGroups: []
   },
   reducers: {
     onMessage: (state, action) => {
@@ -29,11 +30,41 @@ export const clarificationDataSlice = createSlice({
     },
     updateSuccess: (state, action) => {
       state.shouldUpdate = false;
+    },
+    updateAvailableGroups: (state, action) => {
+      state.availableGroups = action.payload;
     }
   },
 });
 
-export const { onMessage, updateTimestamp, updateSeen, logout, updateRequired, updateSuccess } = clarificationDataSlice.actions;
+export const { onMessage, updateTimestamp, updateSeen, logout, updateRequired, updateSuccess, updateAvailableGroups } = clarificationDataSlice.actions;
+
+export const listGroups = () => (dispatch, getState) => {
+  let state = getState();
+  return axios.post('/groups', {
+    username: state.user.username,
+    token: state.user.token
+  }).then(res => {
+    dispatch(updateAvailableGroups(res.data.groups))
+  }).catch(err => {
+    console.log(err);
+  })
+}
+
+export const grantGroup = (threadID, groupname, resolve, reject) => (dispatch, getState) => {
+  let state = getState();
+  return axios.post(`/groups/${threadID}`, {
+    username: state.user.username,
+    token: state.user.token,
+    groupname: groupname
+  }).then(success => {
+    dispatch(requestUpdate());
+  }).then(() => resolve())
+    .catch(err => {
+    console.log(err);
+    reject(err);
+  })
+}
 
 export const requestUpdate = () => dispatch => {
   console.log("Update requested")

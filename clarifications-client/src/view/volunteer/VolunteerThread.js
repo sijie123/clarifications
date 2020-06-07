@@ -2,7 +2,6 @@ import Button from 'react-bootstrap/Button'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form'
 import FormControl from 'react-bootstrap/FormControl'
@@ -13,13 +12,12 @@ import { replyToThread } from "../../model/clarificationDataSlice";
 
 import { Messages } from "../common/Message";
 
-import { Similarity } from './Similarity';
 import { Visibility } from '../common/Visibility';
 
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 
-export function CommitteeThreadOverview(props) {
+export function VolunteerThreadOverview(props) {
   let thread = props.thread;
 
   return (
@@ -35,21 +33,19 @@ export function CommitteeThreadOverview(props) {
   )
 }
 
-export function CommitteeThreadReplyQuick(props) {
+export function VolunteerThreadReplyQuick(props) {
   const [replyOption, setReplyOption] = props.replyOption;
 
   return (
     <Form.Control as="select" custom value={replyOption} onChange={e => setReplyOption(e.target.value)}>
       <option>Yes</option>
-      <option>No</option>
-      <option>No comments</option>
-      <option>Invalid question</option>
+      <option>Item delivered.</option>
       <option>Refer to comments</option>
     </Form.Control>
   )
 }
 
-export function CommitteeExternalThreadReply(props) {
+export function VolunteerExternalThreadReply(props) {
   const dispatch = useDispatch();
   const threadID = props.threadID;
 
@@ -96,10 +92,10 @@ export function CommitteeExternalThreadReply(props) {
       <InputGroup className="replyFragment">
         { replyOption === "Refer to comments" && (
           <InputGroup.Prepend>
-            <CommitteeThreadReplyQuick replyOption={[replyOption, setReplyOption]} />
+            <VolunteerThreadReplyQuick replyOption={[replyOption, setReplyOption]} />
           </InputGroup.Prepend>
         ) || (
-          <CommitteeThreadReplyQuick replyOption={[replyOption, setReplyOption]} />
+          <VolunteerThreadReplyQuick replyOption={[replyOption, setReplyOption]} />
         )}
         
         { replyOption === "Refer to comments" &&
@@ -119,7 +115,7 @@ export function CommitteeExternalThreadReply(props) {
   )
 }
 
-export function CommitteeInternalThreadReply(props) {
+export function VolunteerInternalThreadReply(props) {
   const dispatch = useDispatch();
   const threadID = props.threadID;
 
@@ -171,14 +167,14 @@ export function CommitteeInternalThreadReply(props) {
             onChange={e => setReplyText(e.target.value)}
           />
         <InputGroup.Append>
-          <Button variant={replyStatus} type="submit" disabled={replyStatus === 'success' ? 'disabled' : ''}><FontAwesomeIcon icon={faPaperPlane} /> Reply (Committee only)</Button>
+          <Button variant={replyStatus} type="submit" disabled={replyStatus === 'success' ? 'disabled' : ''}><FontAwesomeIcon icon={faPaperPlane} /> Reply (Volunteer only)</Button>
         </InputGroup.Append>
       </InputGroup>
     </Form>
   )
 }
 
-export function CommitteeAnnouncementDetails(props) {
+export function VolunteerAnnouncementDetails(props) {
   const thread = props.thread;
 
   return (
@@ -200,7 +196,7 @@ export function CommitteeAnnouncementDetails(props) {
   )
 }
 
-export function CommitteeThreadDetails(props) {
+export function VolunteerThreadDetails(props) {
   const thread = props.thread;
   const threadID = props.threadID;
   const availableGroups = props.availableGroups;
@@ -209,31 +205,27 @@ export function CommitteeThreadDetails(props) {
   const setCurrentlyFocusedThreadID = props.setCurrentlyFocusedThreadID;
 
   let filter = (isExternal) => ( ([, msg]) => (msg.isExternal == isExternal) )
-
   return (
     <Card.Body>
       <Row>
-        <Col md={7} className={'px-2 border-right'}>
-          <div className={'bg-light'} style={{paddingTop: '20px'}}>
-          <Messages messages={thread.messages} filter={filter(true)} />
-          <CommitteeExternalThreadReply replyAction={replyAction} threadID={threadID} />
+        <Col md={5} className={'order-md-12 px-2 border-left'}>
+          <h4>Basic Information</h4>
+          <p>ContestantID: {thread.senderid}<br />
+             Created By: {thread.creatorid}
+             <br />
+             <Visibility thread={thread} threadID={threadID} availableGroups={availableGroups}/>
+          </p>
+          <h4>Internal Communication</h4>
+          <div className={'bg-internalComms'} style={{paddingTop: '20px', marginBottom: '20px'}}>
+            <Messages messages={thread.messages} filter={filter(false)}/>
+            <VolunteerInternalThreadReply replyAction={replyAction} threadID={threadID} />
           </div>
         </Col>
-        <Col md={5} className={'px-2 border-left'}>
-          <h4>Basic Information</h4>
-          <p>
-            ContestantID: {thread.senderid}<br/>
-            Created By: {thread.creatorid}
-            <br />
-            <Visibility thread={thread} threadID={threadID} availableGroups={availableGroups}/>
-          </p>
-          <h4>Similar Questions</h4>
-          <Similarity title={thread.title} setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID} />
-
-          <h4>Internal Communication</h4>
-          <div className={'bg-internalComms'} style={{paddingTop: '20px'}}>
-            <Messages messages={thread.messages} filter={filter(false)}/>
-            <CommitteeInternalThreadReply replyAction={replyAction} threadID={threadID} />
+        <Col md={7} className={'order-md-1 px-2 border-right'}>
+          <h4 className={'d-md-none'}>Contestant Communication</h4>
+          <div className={'bg-light'} style={{paddingTop: '20px'}}>
+          <Messages messages={thread.messages} filter={filter(true)} />
+          <VolunteerExternalThreadReply replyAction={replyAction} threadID={threadID} />
           </div>
         </Col>
       </Row>

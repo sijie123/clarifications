@@ -26,6 +26,12 @@
   float: right;
 }
 
+.verticalElement {
+  min-height: 0;
+}
+.flexHorizontal {
+  min-width: 0;
+}
 
 .center {
   display: flex;

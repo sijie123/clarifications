@@ -8,19 +8,26 @@ import { CommitteeThreadOverview, CommitteeThreadDetails, CommitteeAnnouncementD
 import { DetailsWrapper } from "../common/DetailsWrapper";
 import { NothingSelectedThread } from "../common/NothingSelectedThread"
 import { NewThread } from '../common/NewThread'
+import { OverviewPagination } from '../common/OverviewPagination';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectClarificationData } from '../../model/clarificationDataSlice';
+import { listGroups, selectClarificationData } from '../../model/clarificationDataSlice';
 import '../common/Common.css'
 
 const THREAD_OPEN = 'Awaiting Answer';
 
-export function Committee() {
+export function Committee(props) {
 
+  const dispatch = useDispatch();
+  const searchFilter = props.searchFilter;
   const clarificationData = useSelector(selectClarificationData);
 
   let [currentlyFocusedThreadID, setCurrentlyFocusedThreadID] = useState(null);
+
+  useEffect(() => {
+    dispatch(listGroups());
+  }, []);
 
   const answered = (thread) => {
     return (thread.answer !== THREAD_OPEN) ? 'answered' : '';
@@ -40,7 +47,7 @@ export function Committee() {
           {
             thread.isannouncement ? 
               <CommitteeAnnouncementDetails threadID={currentlyFocusedThreadID} thread={thread} /> : 
-              <CommitteeThreadDetails threadID={currentlyFocusedThreadID} thread={thread} setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID} />
+              <CommitteeThreadDetails threadID={currentlyFocusedThreadID} thread={thread} availableGroups={clarificationData.availableGroups} setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID} />
           }
       </DetailsWrapper>
     ); 
@@ -73,39 +80,32 @@ export function Committee() {
   }
 
   return (
-    <Container fluid>
-      <Row>
-        <Col md={3}>
+    <Container fluid className={'flexVertical flexElement'}>
+      <Row style={{flexFlow:'row', minHeight: '100%'}}>
+        <Col md={3} style={{flex: '1 1 auto', overflow: 'auto'}}>
           <Card className="overviewGroup">
             <Card.Header>
               <h5 class="m-0" className="inline">Announcements</h5>
               <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewQuestion')}}>New Announcement</Button>
             </Card.Header>
             {
-              Object.entries(clarificationData.threads).filter(onlyAnnouncements).sort(sortIDAsc).map(display)
+              Object.entries(clarificationData.threads).filter(searchFilter).filter(onlyAnnouncements).sort(sortIDAsc).map(display)
             }
           </Card>
           <br/>
           <Card className="overviewGroup">
             <Card.Header>
-              <h5 class="m-0" className="inline">Unresolved</h5>
+              <h5 class="m-0" className="inline">Awaiting Response</h5>
             </Card.Header>
             {
-              Object.entries(clarificationData.threads).filter(noAnnouncements).filter(onlyUnanswered).sort(sortIDAsc).map(display)
+              Object.entries(clarificationData.threads).filter(searchFilter).filter(noAnnouncements).filter(onlyUnanswered).sort(sortIDAsc).map(display)
             }
           </Card>
           <br/>
-          <Card className="overviewGroup">
-            <Card.Header>
-              <h5 class="m-0" className="inline">Answered</h5>
-              
-            </Card.Header>
-            {
-              Object.entries(clarificationData.threads).filter(noAnnouncements).filter(onlyAnswered).sort(sortIDDesc).map(display)
-            }
-          </Card>
+          <OverviewPagination threads={Object.entries(clarificationData.threads).filter(searchFilter).filter(noAnnouncements).filter(onlyAnswered).sort(sortIDDesc)} display={display}/>
+          <br/>
         </Col>
-        <Col md={9}>
+        <Col md={9} style={{flex: '1 1 auto', overflow: 'auto'}}>
           {displayCurrentlyFocusedThread()}
         </Col>
       </Row>
@@ -113,3 +113,4 @@ export function Committee() {
     </Container>
   );
 }
+
