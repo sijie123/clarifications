@@ -3,7 +3,8 @@ const errors = require('./error.js');
 const auth = require('./auth.js');
 const {validationResult} = require('express-validator');
 const strftime = require('./strftime.js');
-const {publishThread, publishMessage} = require('../plugins/loader.js');
+const {publishMessage, publishThread} = require('../plugins/loader.js');
+const adapters = require('../adapters/loader.js');
 
 const validate = async (req, res, next) => {
   let errors = await validationResult(req);
@@ -21,5 +22,6 @@ module.exports = {
   validate: validate,
   strftime: strftime,
   publishThread: publishThread,
-  publishMessage: publishMessage
+  publishMessage: publishMessage,
+  adapters: adapters
 }

@@ -1,12 +1,10 @@
 const config = require('../config.js');
 const PubSub = require('pubsub-js');
 
-const loadedPlugins = [];
 config.plugins.forEach(pluginName => {
   try {
     let Plugin = require(`./${pluginName}.js`);
     let p = new Plugin(PubSub);
-    loadedPlugins.push(p);
     console.log(`Loaded plugin: ${pluginName}`);
   } catch (e) {
     console.error(`Failed to load plugin: ${pluginName}. Error: ${e}`);

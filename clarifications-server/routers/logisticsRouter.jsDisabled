@@ -61,4 +61,4 @@ logisticsRouter.post('/:threadID/', [
   .catch(error => {console.log(error); res.failure(`${error}`)})
 })
 
-module.exports = groupRouter;
+module.exports = logisticsRouter;

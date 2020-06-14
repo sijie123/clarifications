@@ -15,6 +15,7 @@ import { Messages } from "../common/Message";
 
 import { Similarity } from './Similarity';
 import { Visibility } from '../common/Visibility';
+import { ContestantLocation } from '../common/ContestantLocation';
 
 import React, {useState, useEffect} from 'react';
 import {useDispatch} from 'react-redux';
@@ -223,8 +224,8 @@ export function CommitteeThreadDetails(props) {
           <h4>Basic Information</h4>
           <p>
             ContestantID: {thread.senderid}<br/>
-            Created By: {thread.creatorid}
-            <br />
+            Location: <ContestantLocation contestant={thread.senderid}/><br/>
+            Created By: {thread.creatorid}<br />
             <Visibility thread={thread} threadID={threadID} availableGroups={availableGroups}/>
           </p>
           <h4>Similar Questions</h4>

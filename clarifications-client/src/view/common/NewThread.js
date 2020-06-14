@@ -24,8 +24,8 @@ export function FindContestant(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState([]);
 
-  const SEARCH_URI = '/users';
-  const handleSearch = useCallback((query) => {
+  const SEARCH_URI = '/user';
+  const handleSearch = (query) => {
     setIsLoading(true);
 
     axios.post(`${SEARCH_URI}/${query}`, {
@@ -36,7 +36,7 @@ export function FindContestant(props) {
       setOptions(options);
       setIsLoading(false);
     });
-  });
+  };
 
   return (
     <Form.Group controlId="forContestant">

@@ -14,4 +14,3 @@ CREATE TABLE users (
     groupname VARCHAR(20) NOT NULL REFERENCES usergroups(groupname),
     token VARCHAR(64)
 );
-

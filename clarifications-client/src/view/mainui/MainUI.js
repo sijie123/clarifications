@@ -67,7 +67,7 @@ export function MainUI() {
       <Nav>{user.groupname} {user.displayname}</Nav>
       <Nav><Logout /></Nav>
     </Navbar>
-    <Container className={'topMargin flexVertical flexElement'} fluid >
+    <Container className={'flexVertical flexElement'} fluid >
       <Container fluid>
       <Row>
           <Col>

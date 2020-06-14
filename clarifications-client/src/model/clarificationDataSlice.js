@@ -41,7 +41,7 @@ export const { onMessage, updateTimestamp, updateSeen, logout, updateRequired, u
 
 export const listGroups = () => (dispatch, getState) => {
   let state = getState();
-  return axios.post('/groups', {
+  return axios.post('/group', {
     username: state.user.username,
     token: state.user.token
   }).then(res => {
@@ -53,7 +53,7 @@ export const listGroups = () => (dispatch, getState) => {
 
 export const grantGroup = (threadID, groupname, resolve, reject) => (dispatch, getState) => {
   let state = getState();
-  return axios.post(`/groups/${threadID}`, {
+  return axios.post(`/group/${threadID}`, {
     username: state.user.username,
     token: state.user.token,
     groupname: groupname

@@ -77,7 +77,7 @@ export function Contestant(props) {
         <Col md={5} style={{flex: '1 1 auto', overflow: 'auto'}}>
           <Card className="overviewGroup">
             <Card.Header>
-              <h5 class="m-0" className="inline">Announcements</h5>
+              <h5 className="m-0 inline">Announcements</h5>
             </Card.Header>
             {
               Object.entries(clarificationData.threads).filter(searchFilter).filter(onlyAnnouncements).sort(sortIDDesc).map(display)
@@ -86,7 +86,7 @@ export function Contestant(props) {
           <br />
           <Card className="overviewGroup">
             <Card.Header>
-              <h5 class="m-0" className="inline">Questions</h5>
+              <h5 className="m-0 inline">Questions</h5>
               <Button id="newQuestion" onClick={e => {setCurrentlyFocusedThreadID('NewQuestion')}}>New Question</Button>
             </Card.Header>
             {

@@ -23,6 +23,8 @@
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
     "express-validator": "^6.4.1",
+    "jimp": "^0.13.0",
+    "jsonwebtoken": "^8.5.1",
     "pg-promise": "^10.5.5",
     "pubsub-js": "^1.8.0",
     "uid-generator": "^2.0.0"
