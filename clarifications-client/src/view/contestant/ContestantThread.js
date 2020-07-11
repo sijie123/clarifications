@@ -32,7 +32,7 @@ export function ContestantThreadOverview(props) {
       {
         !thread.isannouncement && 
         <Col md={5}>
-          <div style={{ textAlign: 'right' }}> {!thread.seen && <span class="badge badge-danger"> new</span>} {populateAnswer(thread.answer)}</div>
+          <div style={{ textAlign: 'right' }}> {!thread.seen && <span className="badge badge-danger"> new</span>} {populateAnswer(thread.answer)}</div>
         </Col>
       }
     </Row>

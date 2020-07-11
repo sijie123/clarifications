@@ -1,0 +1,6 @@
+# Ignore public and private key
+*.key
+*.pub
+*.priv
+
+config.js

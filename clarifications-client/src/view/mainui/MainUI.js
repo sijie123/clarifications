@@ -47,6 +47,9 @@ export function MainUI() {
     const timer = setInterval(() => {
       dispatch(requestUpdate());
     }, 5000);
+    return () => {
+      clearInterval(timer);
+    }
   }, []);
 
   let searchText = filterText => ([,thread]) => {

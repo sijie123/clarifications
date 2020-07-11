@@ -1,8 +1,7 @@
 import Modal from 'react-bootstrap/Modal'
-import Button from 'react-bootstrap/Button'
-import axios from 'axios'
 
 import { selectUser } from "../../model/userSlice";
+import { fetchSeat } from '../../model/actions';
 
 import React, { useState, useEffect } from 'react';
 
@@ -16,14 +15,9 @@ export function ContestantLocation(props) {
   const [seatDescription, setSeatDescription] = useState('');
   const [imageURL, setImageURL] = useState('');
   const [show, setShow] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const SEARCH_URI = `/seat/${contestantUser}`
-    axios.post(SEARCH_URI, {
-      username: user.username,
-      token: user.token,
-    }).then( ({data}) => {
+    fetchSeat(contestantUser).then( ({data}) => {
       setSeatName(data.seatname);
       setSeatDescription(data.locationtext);
     }).catch(err => {
@@ -34,7 +28,7 @@ export function ContestantLocation(props) {
 
   const handleShow = () => {
     setShow(true)
-    setImageURL(`/seat/map/${seatName}`);
+    setImageURL(`/api/seat/map/${seatName}`);
   }
 
   const handleClose = () => {

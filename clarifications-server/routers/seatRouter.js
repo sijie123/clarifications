@@ -1,20 +1,11 @@
 const express = require('express');
 const { check, body, param, cookie } = require('express-validator');
 const seatRouter = express.Router();
-const { db, errors, auth, validate, adapters } = require('../util/common.js');
+const { db, errors, validate, adapters } = require('../util/common.js');
 
 const authMiddleware = async (req, res, next) => {
-  if (req.body.username && req.body.token) {
-    auth.authenticateUserToken(req.body.username, req.body.token)
-      .then(result => {
-        if (result.role === "CONTESTANT") throw new errors.AuthenticationError("Contestants do not have access to this API.");
-        return result;
-      })
-      .then(auth => {req.auth = auth; next()})
-      .catch(err => res.failure(err));
-  } else {
-    return res.failure(new errors.AuthenticationError("No usable authentication provided."));
-  }
+  if (req.auth.role === "CONTESTANT") return res.failure(new errors.AuthenticationError("Contestants do not have access to this API."));
+  else next();
 }
 
 seatRouter.post('/:username', async (req, res) => {
@@ -42,7 +33,6 @@ seatRouter.get('/map/:seatname', async (req, res) => {
       'Cache-Control': 'public, max-age=31557600'
     }).send(result.data)
   } else {
-    console.log(result);
     res.failure(result.errorMessage, result.errorCode)
   }
 })

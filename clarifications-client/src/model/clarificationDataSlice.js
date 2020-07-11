@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-
+import { fetchGroups, grantAccessToThread, fetchUpdatesSince, postReplyToThread } from './actions';
 export const clarificationDataSlice = createSlice({
   name: 'clarificationData',
   initialState: {
@@ -11,9 +10,21 @@ export const clarificationDataSlice = createSlice({
   },
   reducers: {
     onMessage: (state, action) => {
+      // Update a single message
       let threadID = action.payload.id;
       state.threads[threadID] = action.payload;
       state.threads[threadID].seen = false;
+    },
+    onMessages: (state, action) => {
+      // Update multiple threads. This is much more efficient
+      // as compared to calling onMessage many times, so use
+      // this whenever possible.
+      let threads = action.payload;
+      threads.forEach(thread => {
+        let threadID = thread.id;
+        state.threads[threadID] = thread;
+        state.threads[threadID].seen = false;
+      })
     },
     updateTimestamp: (state, action) => {
       state.currentUpdateTimestamp = action.payload;
@@ -37,14 +48,10 @@ export const clarificationDataSlice = createSlice({
   },
 });
 
-export const { onMessage, updateTimestamp, updateSeen, logout, updateRequired, updateSuccess, updateAvailableGroups } = clarificationDataSlice.actions;
+export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updateRequired, updateSuccess, updateAvailableGroups } = clarificationDataSlice.actions;
 
-export const listGroups = () => (dispatch, getState) => {
-  let state = getState();
-  return axios.post('/group', {
-    username: state.user.username,
-    token: state.user.token
-  }).then(res => {
+export const listGroups = () => (dispatch) => {
+  return fetchGroups().then(res => {
     dispatch(updateAvailableGroups(res.data.groups))
   }).catch(err => {
     console.log(err);
@@ -52,52 +59,33 @@ export const listGroups = () => (dispatch, getState) => {
 }
 
 export const grantGroup = (threadID, groupname, resolve, reject) => (dispatch, getState) => {
-  let state = getState();
-  return axios.post(`/group/${threadID}`, {
-    username: state.user.username,
-    token: state.user.token,
-    groupname: groupname
-  }).then(success => {
-    dispatch(requestUpdate());
-  }).then(() => resolve())
+  return grantAccessToThread(threadID, groupname)
+    .then(success => {
+      dispatch(requestUpdate());
+    })
+    .then(() => resolve())
     .catch(err => {
-    console.log(err);
-    reject(err);
-  })
+      console.log(err);
+      reject(err);
+    })
 }
 
 export const requestUpdate = () => dispatch => {
-  console.log("Update requested")
   dispatch(updateRequired());
 }
 
 export const checkForUpdates = () => (dispatch, getState) => {
   let state = getState();
-  return axios.post(`/update`, {
-    username: state.user.username,
-    token: state.user.token,
-    currentUpdateTimestamp: state.clarificationData.currentUpdateTimestamp
-  }).then(resp => {
-    dispatch(receiveNewMessage(resp.data.threads))
+  return fetchUpdatesSince(state.clarificationData.currentUpdateTimestamp).then(resp => {
+    dispatch(onMessages(resp.data.threads))
     dispatch(updateTimestamp(resp.data.updated))
     dispatch(updateSuccess())
   })
 }
 
-export const receiveNewMessage = (threads) => dispatch => {
-  threads.forEach((thread) => {
-    dispatch(onMessage(thread))
-  })
-}
 
-export const replyToThread = (message, resolve, reject) => (dispatch, getState) => {
-  let state = getState();
-  return axios.post(`/thread/${message.threadID}`, {
-    username: state.user.username,
-    token: state.user.token,
-    content: message.content,
-    isExternal: message.isExternal
-  }).then(success => {
+export const replyToThread = (message, resolve, reject) => (dispatch) => {
+  return postReplyToThread(message).then(success => {
     dispatch(requestUpdate());
   }).then(() => resolve())
     .catch(err => reject(err))

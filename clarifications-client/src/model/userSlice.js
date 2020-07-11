@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import jsonwebtoken from 'jsonwebtoken';
+
 import axios from 'axios';
 
 export const userSlice = createSlice({
@@ -31,30 +33,19 @@ export const userSlice = createSlice({
 
 export const { login, logout } = userSlice.actions;
 
-export const doLogin = (auth, success, failureCallback) => dispatch => {
-  console.log("Here2");
-  axios.post('/auth', {
-    username: auth.username,
-    password: auth.password
-  }).then(resp => {
-    dispatch(login({
-      username: resp.data.username,
-      role: resp.data.role,
-      displayname: resp.data.displayname,
-      groupname: resp.data.groupname,
-      token: resp.data.token
-    }))
-  }).then(() => success()).catch(err => {
-    failureCallback(err.response.data)
-  })
+export const doLogin = (token) => dispatch => {
+  let decoded = jsonwebtoken.decode(token);
+  dispatch(login({
+    username: decoded.username,
+    displayname: decoded.displayname,
+    groupname: decoded.groupname,
+    role: decoded.role,
+    token: token
+  }))
 }
 
 export const doLogout = () => dispatch => {
   dispatch(logout());
-  // return new Promise( (resolve) => {
-  //   dispatch(logout());
-  //   resolve();
-  // })
 }
 
 // The function below is called a selector and allows us to select a value from

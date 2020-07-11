@@ -1,0 +1,4 @@
+# React build output directory
+build/
+
+.env.development.local

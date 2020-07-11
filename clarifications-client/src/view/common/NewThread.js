@@ -17,6 +17,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { requestUpdate } from '../../model/clarificationDataSlice';
 import { selectUser } from '../../model/userSlice';
+import { newThread, fetchUsers } from '../../model/actions';
 
 export function FindContestant(props) {
   const setContestantFor = props.setContestantFor;
@@ -24,14 +25,9 @@ export function FindContestant(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [options, setOptions] = useState([]);
 
-  const SEARCH_URI = '/user';
   const handleSearch = (query) => {
     setIsLoading(true);
-
-    axios.post(`${SEARCH_URI}/${query}`, {
-      username: user.username,
-      token: user.token,
-    }).then(usernames => {
+    fetchUsers(query).then(usernames => {
       let options = usernames.data.users;
       setOptions(options);
       setIsLoading(false);
@@ -77,26 +73,20 @@ export function NewThread(props) {
   const [threadStatus, setThreadStatus] = useState('primary');
   const [threadError, setThreadError] = useState('');
 
-  
+  const buildForm = async () => {
+    let form = {};
 
-  const submitNewThread = async () => {
-    let threadCreatedFor = null;
-    console.log(contestantFor)
+    let message = {
+      subject: `${threadSubject}${isLogistics ? ' (Logistics)' : ''}`,
+      content: threadText,
+      isAnnouncement: isAnnouncement,
+      isLogistics: isLogistics,
+    }
     if (allowOnBehalf && contestantFor !== null) {
-      if (typeof contestantFor === 'string') threadCreatedFor = contestantFor;
-      else threadCreatedFor = contestantFor[0].username;
+      if (typeof contestantFor === 'string') message['createdFor'] = contestantFor;
+      else message['createdFor'] = contestantFor[0].username;
     }
-    let request = {
-      username: user.username,
-      token: user.token,
-      message: {
-        subject: `${threadSubject}${isLogistics ? ' (Logistics)' : ''}`,
-        content: threadText,
-        isAnnouncement: isAnnouncement,
-        isLogistics: isLogistics,
-        threadCreatedFor: threadCreatedFor, // Will be null if not allowed.
-      }
-    }
+
     let file = fileInput.current.files[0];
     if (file != undefined) {
       let fileType = file.type;
@@ -104,10 +94,17 @@ export function NewThread(props) {
         throw new Error("Only jpg/png files are accepted.");
       }
       let base64File = await toBase64(file);
-      request.message.attachment = base64File;
-      request.message.attachmentType = fileType;
+      message['attachment'] = base64File;
+      message['attachmentType'] = fileType;
     }
-    return axios.post(`/thread`, request).then(success => dispatch(requestUpdate()))
+
+    form['message'] = message;
+    return form;
+  }
+
+  const submitNewThread = async () => {
+    let form = await buildForm();
+    return newThread(form).then(success => dispatch(requestUpdate()))
   }
   
   const toBase64 = file => new Promise((resolve, reject) => {
@@ -123,6 +120,8 @@ export function NewThread(props) {
     setThreadSubject("General");
     setThreadStatus('success');
     setThreadError('');
+    // fileInput.value = null;
+    console.log(fileInput);
     setTimeout(() => {
       setThreadStatus('primary');
     }, 2000)

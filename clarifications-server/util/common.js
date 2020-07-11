@@ -1,6 +1,5 @@
 const db = require('./db.js');
 const errors = require('./error.js');
-const auth = require('./auth.js');
 const {validationResult} = require('express-validator');
 const strftime = require('./strftime.js');
 const {publishMessage, publishThread} = require('../plugins/loader.js');
@@ -18,10 +17,10 @@ const validate = async (req, res, next) => {
 module.exports = {
   db: db,
   errors: errors,
-  auth: auth,
   validate: validate,
   strftime: strftime,
   publishThread: publishThread,
   publishMessage: publishMessage,
-  adapters: adapters
+  adapters: adapters,
+  AuthService: adapters.AuthService
 }
