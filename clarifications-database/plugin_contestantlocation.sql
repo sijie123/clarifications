@@ -15,7 +15,3 @@ CREATE TABLE plugin_userlocation (
     username VARCHAR(50) PRIMARY KEY REFERENCES users(username),
     seatname VARCHAR(50) NOT NULL REFERENCES plugin_seat(seatname)
 );
-
-ALTER TABLE plugin_seat OWNER TO clarificationdb;
-ALTER TABLE plugin_userlocation OWNER TO clarificationdb;
-
