@@ -3,6 +3,7 @@ const errors = require('../../util/error.js');
 const db = require('../../util/db.js');
 const Promise = require('bluebird');
 
+const cookie = require('cookie');
 
 const config = require('../../config.js');
 const pgp = require('pg-promise')();
@@ -41,13 +42,11 @@ class CMSCookieAdapter {
         }
     }
     static _findWorkingCookie(authData) {
-        // We don't get to choose which cookie comes our way.
-        // We want to look this cookie: ContestName_login=2|1:0|<LEN>:<TIMESTAMP>|<LEN>:ContestName_login|<LEN>:<Base64 Token>|hash
-        let cookies = authData.split(";").map(cookie => cookie.trim());
-        for (let cookie of cookies) {
-            let kv = cookie.split("=");
-            if (kv[0].endsWith("_login")) {
-                let auth = this._parseToken(kv[1]);
+        let cookies = cookie.parse(authData);
+        let keys = Object.keys(cookies);
+        for (let k of keys) {
+            if (k.endsWith("_login")) {
+                let auth = this._parseToken(cookies[k]);
                 if (auth == null) continue;
                 if (this._authenticate(auth.username, auth.token)) return auth.username;
             }
@@ -57,9 +56,9 @@ class CMSCookieAdapter {
     static login(req) {
         return Promise.try(() => {
             if (!req.body.clarificationData) throw new errors.AuthenticationError("Token not found.");
-            return true;
-        }).then((tokenExists) => {
-            return this._findWorkingCookie(req.body.clarificationData);
+            return req.body.clarificationData;
+        }).then((token) => {
+            return this._findWorkingCookie(token);
         })
     }
 
