@@ -51,7 +51,7 @@ export function Volunteer(props) {
     return (
       <Overlay setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID}>
         <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>
-            <Card.Body className={`${answered(thread)}`}><VolunteerThreadOverview threadID={currentlyFocusedThreadID} thread={thread} /></Card.Body>
+            <Card.Body className={`${answered(thread)}`}><VolunteerThreadOverview threadID={currentlyFocusedThreadID} thread={thread} short={false}/></Card.Body>
             {
               thread.isannouncement ? 
                 <VolunteerAnnouncementDetails threadID={currentlyFocusedThreadID} thread={thread} /> : 
@@ -83,7 +83,7 @@ export function Volunteer(props) {
   let display = ( [threadID, thread] ) => {
     return (
       <Card.Body onClick={e => setCurrentlyFocusedThreadID(threadID)} className={`overviewEntry ${answered(thread)} ${currentlySelected(threadID)}`}>
-        <VolunteerThreadOverview threadID={threadID} thread={thread} />
+        <VolunteerThreadOverview threadID={threadID} thread={thread} short={true}/>
       </Card.Body>
     )
   }

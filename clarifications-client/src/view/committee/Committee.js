@@ -45,7 +45,7 @@ export function Committee(props) {
     let thread = clarificationData.threads[currentlyFocusedThreadID]
     return (
       <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>
-          <Card.Body className={`${answered(thread)}`}><CommitteeThreadOverview threadID={currentlyFocusedThreadID} thread={thread} /></Card.Body>
+          <Card.Body className={`${answered(thread)}`}><CommitteeThreadOverview threadID={currentlyFocusedThreadID} thread={thread} short={false}/></Card.Body>
           {
             thread.isannouncement ? 
               <CommitteeAnnouncementDetails threadID={currentlyFocusedThreadID} thread={thread} /> : 
@@ -76,7 +76,7 @@ export function Committee(props) {
   let display = ( [threadID, thread] ) => {
     return (
       <Card.Body onClick={e => setCurrentlyFocusedThreadID(threadID)} className={`overviewEntry ${answered(thread)} ${currentlySelected(threadID)}`}>
-        <CommitteeThreadOverview threadID={threadID} thread={thread} />
+        <CommitteeThreadOverview threadID={threadID} thread={thread} short={true}/>
       </Card.Body>
     )
   }

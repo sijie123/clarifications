@@ -39,7 +39,7 @@ export function Contestant(props) {
     let thread = clarificationData.threads[currentlyFocusedThreadID]
     return (
       <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>
-          <Card.Body className={`${answered(thread)}`}><ContestantThreadOverview threadID={currentlyFocusedThreadID} thread={thread} /></Card.Body>
+          <Card.Body className={`${answered(thread)}`}><ContestantThreadOverview threadID={currentlyFocusedThreadID} thread={thread} short={false} /></Card.Body>
           {
             thread.isannouncement ? 
               <ContestantAnnouncementDetails threadID={currentlyFocusedThreadID} thread={thread} /> : 
@@ -67,7 +67,7 @@ export function Contestant(props) {
   let display = ( [threadID, thread], posn ) => {
     return (
       <Card.Body onClick={e => setCurrentlyFocusedThreadID(threadID)} className={`overviewEntry ${answered(thread)} ${currentlySelected(threadID)}`}>
-        <ContestantThreadOverview threadID={threadID} thread={thread} />
+        <ContestantThreadOverview threadID={threadID} thread={thread} short={true} />
       </Card.Body>
     )
   }

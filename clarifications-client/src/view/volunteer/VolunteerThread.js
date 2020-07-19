@@ -11,6 +11,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { replyToThread } from "../../model/clarificationDataSlice";
 
 import { Messages } from "../common/Message";
+import { truncate } from "../common/Util";
 
 import { Visibility } from '../common/Visibility';
 
@@ -19,11 +20,12 @@ import {useDispatch} from 'react-redux';
 
 export function VolunteerThreadOverview(props) {
   let thread = props.thread;
+  let short = props.short;
 
   return (
     <Row>
       <Col md={10}>
-        <Card.Text className="mb-0 titleText">{thread.title}</Card.Text>
+        <Card.Text className="mb-0 titleText">{truncate(thread.title, short)}</Card.Text>
         <Card.Text className="extraInfoText text-muted">{thread.subject} | {thread.senderid} | {thread.created} </Card.Text>
       </Col>
       <Col md={2}>

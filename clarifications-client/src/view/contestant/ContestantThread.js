@@ -10,6 +10,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 
 import { replyToThread } from "../../model/clarificationDataSlice";
 import { Messages } from "../common/Message";
+import { truncate } from "../common/Util";
 
 import React, {useState, useEffect} from 'react';
 import {useDispatch} from 'react-redux';
@@ -17,6 +18,7 @@ const THREAD_OPEN = 'Awaiting Answer';
 
 export function ContestantThreadOverview(props) {
   let thread = props.thread;
+  let short = props.short;
 
   const populateAnswer = (ans) => {
     return <b><i>{ans}</i></b>;
@@ -25,7 +27,7 @@ export function ContestantThreadOverview(props) {
   return (
     <Row>
       <Col md={7}>
-        <Card.Text className="mb-0 titleText">{thread.title}</Card.Text>
+        <Card.Text className="mb-0 titleText">{truncate(thread.title, short)}</Card.Text>
         <Card.Text className="extraInfoText text-muted">{thread.subject}</Card.Text>
       </Col>
       {
