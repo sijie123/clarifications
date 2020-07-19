@@ -1,4 +1,4 @@
-const db = require('./db.js');
+const {db} = require('./db.js');
 const errors = require('./error.js');
 const {validationResult} = require('express-validator');
 const strftime = require('./strftime.js');

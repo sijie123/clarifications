@@ -43,7 +43,7 @@ export function Volunteer(props) {
     else if (currentlyFocusedThreadID === 'NewQuestion') {
       return (
         <Overlay setCurrentlyFocusedThreadID={setCurrentlyFocusedThreadID}>
-          <NewThread isAnnouncement={false} allowOnBehalf={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />
+          <NewThread isAnnouncement={false} allowOnBehalf={true} />
         </Overlay>
       )
     }

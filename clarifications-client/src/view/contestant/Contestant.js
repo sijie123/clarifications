@@ -35,7 +35,7 @@ export function Contestant(props) {
 
   const displayCurrentlyFocusedThread = () => {
     if (currentlyFocusedThreadID == null) return <NothingSelectedThread />;
-    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={false} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
+    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={false} />;
     let thread = clarificationData.threads[currentlyFocusedThreadID]
     return (
       <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>

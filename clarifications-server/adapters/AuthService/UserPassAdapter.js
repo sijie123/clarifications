@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const errors = require('../../util/error.js');
-const db = require('../../util/db.js');
+const {db} = require('../../util/db.js');
 
 class UserPassAdapter {
 

@@ -43,6 +43,11 @@ export const fetchGroups = () => {
   return POST('/api/group', {});
 }
 
+export const fetchTasks = () => {
+  let config = getAxiosConfig();
+  return axios.get('/api/task', config);
+}
+
 export const fetchImage = (url) => {
   let config = getAxiosConfig();
   return new Promise((resolve, reject) => {

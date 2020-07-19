@@ -1,14 +1,9 @@
 const bcrypt = require('bcrypt');
 const errors = require('../../util/error.js');
-const db = require('../../util/db.js');
+const {cmsdb} = require('../../util/db.js');
 const Promise = require('bluebird');
 
 const cookie = require('cookie');
-
-const config = require('../../config.js');
-const pgp = require('pg-promise')();
-const cmsConn = config.CMS_DB_URI;
-let cmsdb = pgp(cmsConn);
 
 class CMSCookieAdapter {
 

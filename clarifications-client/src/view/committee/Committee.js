@@ -40,8 +40,8 @@ export function Committee(props) {
 
   const displayCurrentlyFocusedThread = () => {
     if (currentlyFocusedThreadID == null) return <NothingSelectedThread />;
-    else if (currentlyFocusedThreadID === 'NewAnnouncement') return <NewThread isAnnouncement={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
-    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={false} allowOnBehalf={true} subjectOptions={["General", "Mountaineering", "Space Exploration", "Corona Beer"]} />;
+    else if (currentlyFocusedThreadID === 'NewAnnouncement') return <NewThread isAnnouncement={true} />;
+    else if (currentlyFocusedThreadID === 'NewQuestion') return <NewThread isAnnouncement={false} allowOnBehalf={true} />;
     let thread = clarificationData.threads[currentlyFocusedThreadID]
     return (
       <DetailsWrapper thread={thread} threadID={currentlyFocusedThreadID}>

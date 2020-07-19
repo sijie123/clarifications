@@ -1,4 +1,4 @@
-const db = require('../util/db.js');
+const {db} = require('../util/db.js');
 const config = require('../config.js')
 
 class AutoDispatcher {

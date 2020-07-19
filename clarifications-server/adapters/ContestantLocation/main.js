@@ -1,4 +1,4 @@
-const db = require('../../util/db.js');
+const {db} = require('../../util/db.js');
 const Jimp = require('jimp');
 
 class ContestantLocation {

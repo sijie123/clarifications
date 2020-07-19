@@ -18,7 +18,7 @@ import { useHistory } from "react-router-dom";
 
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../../model/userSlice';
-import { checkForUpdates, requestUpdate, selectClarificationData } from '../../model/clarificationDataSlice';
+import { checkForUpdates, requestUpdate, listTasks, selectClarificationData } from '../../model/clarificationDataSlice';
 
 import './MainUI.css';
 
@@ -60,6 +60,10 @@ export function MainUI() {
       clearInterval(timer);
     }
   }, []);
+
+  useEffect(() => {
+    dispatch(listTasks());
+  }, [])
 
   let searchText = filterText => ([,thread]) => {
     if (filterText === '') return true;

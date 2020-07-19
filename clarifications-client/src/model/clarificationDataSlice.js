@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchGroups, grantAccessToThread, fetchUpdatesSince, postReplyToThread } from './actions';
+import { fetchGroups, fetchTasks, grantAccessToThread, fetchUpdatesSince, postReplyToThread } from './actions';
 import {cloneDeep} from 'lodash';
 const isEqual = require("fast-deep-equal/es6");
 
@@ -11,6 +11,7 @@ export const clarificationDataSlice = createSlice({
     shouldUpdate: false,
     currentUpdateTimestamp: 0,
     availableGroups: [],
+    availableTasks: [],
     shouldMakeBeep: false,
     hasNewNotification: false,
   },
@@ -57,6 +58,9 @@ export const clarificationDataSlice = createSlice({
     updateAvailableGroups: (state, action) => {
       state.availableGroups = action.payload;
     },
+    updateAvailableTasks: (state, action) => {
+      state.availableTasks = action.payload;
+    },
     shouldNotMakeBeep: (state, action) => {
       state.shouldMakeBeep = false;
     },
@@ -66,7 +70,16 @@ export const clarificationDataSlice = createSlice({
   },
 });
 
-export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updateRequired, updateDone, updateAvailableGroups, shouldNotMakeBeep, shouldDismissTitle } = clarificationDataSlice.actions;
+export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updateRequired, updateDone, updateAvailableGroups, updateAvailableTasks, shouldNotMakeBeep, shouldDismissTitle } = clarificationDataSlice.actions;
+
+export const listTasks = () => (dispatch) => {
+  return fetchTasks().then(res => {
+    console.log(res.data.tasks);
+    dispatch(updateAvailableTasks(res.data.tasks))
+  }).catch(err => {
+    console.log(err);
+  })
+}
 
 export const listGroups = () => (dispatch) => {
   return fetchGroups().then(res => {

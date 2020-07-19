@@ -15,7 +15,7 @@ import { faFileAlt, faLaptop, faMugHot, faRestroom } from '@fortawesome/free-sol
 import React, {useState, useEffect, useCallback, createRef} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { requestUpdate } from '../../model/clarificationDataSlice';
+import { requestUpdate, selectClarificationData } from '../../model/clarificationDataSlice';
 import { selectUser } from '../../model/userSlice';
 import { newThread, fetchUsers } from '../../model/actions';
 
@@ -56,7 +56,6 @@ export function FindContestant(props) {
 }
 export function NewThread(props) {
 
-  let subjectOptions = props.subjectOptions;
   let isAnnouncement = props.isAnnouncement;
   let allowOnBehalf = props.allowOnBehalf || false;
   let threadType = props.isAnnouncement ? "Announcement" : "Question";
@@ -64,6 +63,7 @@ export function NewThread(props) {
   let fileInput = createRef();
 
   const user = useSelector(selectUser);
+  const clarificationData = useSelector(selectClarificationData);
   const dispatch = useDispatch();
 
   const [isLogistics, setIsLogistics] = useState(false);
@@ -197,10 +197,10 @@ export function NewThread(props) {
           {
             !isLogistics && 
             <>
-            <Form.Label>Category</Form.Label>
+            <Form.Label>Task</Form.Label>
             <Form.Control as="select" custom value={threadSubject} onChange={e => setThreadSubject(e.target.value)}>
               {
-                !isLogistics && subjectOptions.map(opt => {
+                !isLogistics && clarificationData.availableTasks.map(opt => {
                   return <option>{opt}</option>;
                 })
               }
