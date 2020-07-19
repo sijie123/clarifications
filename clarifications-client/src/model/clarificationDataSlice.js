@@ -30,7 +30,7 @@ export const clarificationDataSlice = createSlice({
       threads.forEach(thread => {
         let threadID = thread.id;
         let current = cloneDeep(state.threads[threadID])
-        if (current && current['seen']) delete current['seen']
+        if (current && 'seen' in current) delete current['seen']
         if (!isEqual(current, thread)) {
           state.threads[threadID] = thread;
           state.threads[threadID].seen = false;
