@@ -17,7 +17,7 @@ const canReply = async (req, res, next) => {
       next();
     }).catch(err => {
       console.log(err);
-      return res.failure(new errors.ClientError("Thread doesn't exist!")); // Say thread doesn't exist, instead of no permission. We don't want user to know thread exists!
+      return res.failure(new errors.AuthenticationError("Thread doesn't exist!")); // Say thread doesn't exist, instead of no permission. We don't want user to know thread exists!
     })
 }
 

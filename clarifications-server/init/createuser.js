@@ -6,12 +6,13 @@ createRole = async (groupname, role) => {
   return db.none("INSERT INTO usergroups VALUES($1, $2)", [groupname, role])
 }
 
-createUser = async (username, displayname, password, groupname) => {
+createUser = async (username, displayname, password, groupname, internaldisplayname) => {
   return AuthService.create({
     username: username,
     displayname: displayname,
     password: password,
-    groupname: groupname
+    groupname: groupname,
+    internaldisplayname: internaldisplayname,
   });
 }
 
@@ -27,11 +28,11 @@ createRole('ITC', 'COMMITTEE')
 .then(() => createRole('ISC', 'COMMITTEE'))
 .then(() => createRole('CON', 'CONTESTANT'))
 .then(() => createRole('VOL', 'VOLUNTEER'))
-.then(() => createUser('itc', 'Lin Si Jie', 'linsijie', 'ITC'))
-.then(() => createUser('isc', 'William Gan', 'linsijie', 'ISC'))
-.then(() => createUser('con', 'John Tan', 'linsijie', 'CON'))
-.then(() => createUser('SS02', 'Sam See', 'linsijie', 'CON'))
-.then(() => createUser('vol', 'Tan Ah Kow', 'linsijie', 'VOL'))
+.then(() => createUser('itc', 'Technical Committee', 'linsijie', 'ITC', 'ITC Lin Si Jie'))
+.then(() => createUser('isc', 'Scientific Committee', 'linsijie', 'ISC', 'ISC William Gan'))
+.then(() => createUser('con', 'SS01 John Tan', 'linsijie', 'CON', 'SS01 John Tan'))
+.then(() => createUser('SS02', 'SS02 Sam See', 'linsijie', 'CON', 'SS02 Sam See'))
+.then(() => createUser('vol', 'Logistics Committee', 'linsijie', 'VOL', 'VOL Tan Ah Kow'))
 .then(() => createSeat('A1', 'MPSH Sector A Seat 1', 'mpsh2', 165, 70, 182, 78))
 .then(() => createSeat('A2', 'MPSH Sector A Seat 1', 'mpsh2', 182, 61, 199, 70))
 .then(() => assignSeat('con', 'A1'))

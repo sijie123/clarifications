@@ -24,7 +24,7 @@ class AuthService {
         let authAttempts = AuthAdapters.map(adapter => adapter.login(req));
         return Promise.any(authAttempts)
         .then(username => {
-            return db.one("SELECT username, displayname, groupname, role FROM users INNER JOIN usergroups USING (groupname) WHERE username = $1", [username])
+            return db.one("SELECT username, internaldisplayname AS displayname, groupname, role FROM users INNER JOIN usergroups USING (groupname) WHERE username = $1", [username])
                      .catch(err => {
                          console.log(err);
                          throw new errors.AuthenticationError("Invalid username/password/token.")

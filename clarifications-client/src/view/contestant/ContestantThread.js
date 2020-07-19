@@ -11,7 +11,7 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { replyToThread } from "../../model/clarificationDataSlice";
 import { Messages } from "../common/Message";
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 const THREAD_OPEN = 'Awaiting Answer';
 
@@ -19,8 +19,7 @@ export function ContestantThreadOverview(props) {
   let thread = props.thread;
 
   const populateAnswer = (ans) => {
-    if (ans === THREAD_OPEN) return THREAD_OPEN;
-    else return `Answered: ${ans}`;
+    return <b><i>{ans}</i></b>;
   }
 
   return (
@@ -49,6 +48,9 @@ export function ContestantThreadReply(props) {
 
   const submitNewReply = (reply, threadID) => {
     return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
       dispatch(replyToThread({
         threadID: threadID,
         content: reply.replyText,
@@ -80,7 +82,7 @@ export function ContestantThreadReply(props) {
   }
   return (
     <Form onSubmit={handleSubmit}>
-      {replyError !== "" ? <p style={{ color: 'red' }}>An error has occurred: {replyError}. Please seek assistance from your invigilator.</p> : ""}
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
       <InputGroup className="replyFragment">
         <FormControl
           placeholder="Reply"
@@ -98,7 +100,13 @@ export function ContestantThreadReply(props) {
 }
 
 export function ContestantAnnouncementDetails(props) {
-  return '';
+  const thread = props.thread;
+  const bgcolour = props.bgcolour;
+  return (
+    <Card.Body className={bgcolour}>
+      <Messages messages={thread.messages} />
+    </Card.Body>
+  )
 }
 
 export function ContestantThreadDetails(props) {

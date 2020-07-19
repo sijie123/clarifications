@@ -1,12 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchGroups, grantAccessToThread, fetchUpdatesSince, postReplyToThread } from './actions';
+import {cloneDeep} from 'lodash';
+const isEqual = require("fast-deep-equal/es6");
+
+
 export const clarificationDataSlice = createSlice({
   name: 'clarificationData',
   initialState: {
     threads: {},
     shouldUpdate: false,
     currentUpdateTimestamp: 0,
-    availableGroups: []
+    availableGroups: [],
+    shouldMakeBeep: false,
+    hasNewNotification: false,
   },
   reducers: {
     onMessage: (state, action) => {
@@ -22,8 +28,14 @@ export const clarificationDataSlice = createSlice({
       let threads = action.payload;
       threads.forEach(thread => {
         let threadID = thread.id;
-        state.threads[threadID] = thread;
-        state.threads[threadID].seen = false;
+        let current = cloneDeep(state.threads[threadID])
+        if (current && current['seen']) delete current['seen']
+        if (!isEqual(current, thread)) {
+          state.threads[threadID] = thread;
+          state.threads[threadID].seen = false;
+          state.hasNewNotification = true;
+          state.shouldMakeBeep = true;
+        }
       })
     },
     updateTimestamp: (state, action) => {
@@ -39,16 +51,22 @@ export const clarificationDataSlice = createSlice({
     updateRequired: (state, action) => {
       state.shouldUpdate = true;
     },
-    updateSuccess: (state, action) => {
+    updateDone: (state, action) => {
       state.shouldUpdate = false;
     },
     updateAvailableGroups: (state, action) => {
       state.availableGroups = action.payload;
+    },
+    shouldNotMakeBeep: (state, action) => {
+      state.shouldMakeBeep = false;
+    },
+    shouldDismissTitle: (state, action) => {
+      state.hasNewNotification = false;
     }
   },
 });
 
-export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updateRequired, updateSuccess, updateAvailableGroups } = clarificationDataSlice.actions;
+export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updateRequired, updateDone, updateAvailableGroups, shouldNotMakeBeep, shouldDismissTitle } = clarificationDataSlice.actions;
 
 export const listGroups = () => (dispatch) => {
   return fetchGroups().then(res => {
@@ -79,7 +97,11 @@ export const checkForUpdates = () => (dispatch, getState) => {
   return fetchUpdatesSince(state.clarificationData.currentUpdateTimestamp).then(resp => {
     dispatch(onMessages(resp.data.threads))
     dispatch(updateTimestamp(resp.data.updated))
-    dispatch(updateSuccess())
+    dispatch(updateDone())
+  }).catch(err => {
+    //Even if there's an error, we will still update done to enable future updates
+    dispatch(updateDone())
+    throw err;
   })
 }
 
@@ -89,6 +111,14 @@ export const replyToThread = (message, resolve, reject) => (dispatch) => {
     dispatch(requestUpdate());
   }).then(() => resolve())
     .catch(err => reject(err))
+}
+
+export const stopBeeping = () => dispatch => {
+  dispatch(shouldNotMakeBeep());
+}
+
+export const resetTitle = () => dispatch => {
+  dispatch(shouldDismissTitle());
 }
 
 export const doLogout = () => dispatch => {

@@ -17,9 +17,9 @@ class UserPassAdapter {
             })
     }
 
-    static _createNew(username, displayname, password, groupname) {
+    static _createNew(username, displayname, password, groupname, internaldisplayname) {
         return bcrypt.hash(password, 1).then(hash => {
-            return db.none("INSERT INTO users (username, displayname, password, groupname) VALUES($1, $2, $3, $4)", [username, displayname, hash, groupname])
+            return db.none("INSERT INTO users (username, displayname, password, groupname, internaldisplayname) VALUES($1, $2, $3, $4, $5)", [username, displayname, hash, groupname, internaldisplayname])
             .catch(error => { throw new errors.ServerError(error) });
         });
     }
@@ -27,8 +27,8 @@ class UserPassAdapter {
         return this._authenticate(req.body.username, req.body.password);
     }
     static create(req) {
-        if (req.body !== undefined ) return this._createNew(req.body.username, req.body.displayname, req.body.password, req.body.groupname);
-        return this._createNew(req.username, req.displayname, req.password, req.groupname)
+        if (req.body !== undefined ) return this._createNew(req.body.username, req.body.displayname, req.body.password, req.body.groupname, req.body.internaldisplayname);
+        return this._createNew(req.username, req.displayname, req.password, req.groupname, req.internaldisplayname)
     }
 }
 

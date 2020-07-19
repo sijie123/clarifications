@@ -11,7 +11,6 @@ const authMiddleware = async (req, res, next) => {
 groupRouter.post('/', authMiddleware, async (req, res) => {
   //Already authenticated
   db.one("SELECT array_agg(groupname) as groups FROM usergroups WHERE role <> 'CONTESTANT'")
-  .then(res => {console.log(res); return res})
   .then(result => res.success(result))
   .catch(error => {console.log(error); res.failure(`${error}`)})
 })

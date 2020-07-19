@@ -10,7 +10,7 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 // import 'react-bootstrap-typeahead/css/Typeahead-bs4.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFileAlt, faAppleAlt, faMugHot, faRestroom } from '@fortawesome/free-solid-svg-icons'
+import { faFileAlt, faLaptop, faMugHot, faRestroom } from '@fortawesome/free-solid-svg-icons'
 
 import React, {useState, useEffect, useCallback, createRef} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
@@ -66,7 +66,7 @@ export function NewThread(props) {
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
 
-  const [isLogistics, setIsLogistics] = useState(null);
+  const [isLogistics, setIsLogistics] = useState(false);
   const [contestantFor, setContestantFor] = useState(null);
   const [threadText, setThreadText] = useState('');
   const [threadSubject, setThreadSubject] = useState("General");
@@ -75,9 +75,9 @@ export function NewThread(props) {
 
   const buildForm = async () => {
     let form = {};
-
+    
     let message = {
-      subject: `${threadSubject}${isLogistics ? ' (Logistics)' : ''}`,
+      subject: `${threadSubject}${isLogistics ? ' (Ops)' : ''}`,
       content: threadText,
       isAnnouncement: isAnnouncement,
       isLogistics: isLogistics,
@@ -137,12 +137,12 @@ export function NewThread(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if ( (isLogistics === null && !isAnnouncement) || threadText == '') {
-      setError("Please fill in all fields.")
+    if (threadText.trim() === '') {
+      setError("Question field cannot be empty.");
       return;
     }
     if (allowOnBehalf && !isAnnouncement && contestantFor == null) {
-      setError("Please fill in all fields.")
+      setError("Submitting-for field is invalid. You'll need to click on the autocomplete name to select it.");
       return;
     }
     submitNewThread()
@@ -175,7 +175,7 @@ export function NewThread(props) {
             <Button style={{height: '150px', width: '100%'}} variant={isLogistics == true ? 'primary' : 'outline-secondary'} onClick={e => setIsLogistics(true)}>
               <Row>
                 <Col style={{borderRight: '1px solid grey'}}>
-                <FontAwesomeIcon icon={faAppleAlt} size="4x"/>
+                <FontAwesomeIcon icon={faLaptop} size="4x"/>
                 </Col>
                 <Col style={{borderRight: '1px solid grey'}}>
                 <FontAwesomeIcon icon={faMugHot} size="4x"/>
@@ -185,7 +185,7 @@ export function NewThread(props) {
                 </Col>
               </Row>
               <br />
-              I need something.</Button>
+              I need help on something else.</Button>
             </Col>
           </Row>
           </Form.Group>
@@ -213,7 +213,7 @@ export function NewThread(props) {
           <Form.Control as="textarea" rows="3" value={threadText} onChange={e => setThreadText(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="newFileUpload">
-          <Form.Label>Attach File (optional)</Form.Label>
+          <Form.Label>Attach Image (optional, png/jpg only)</Form.Label>
           <Form.File 
             id="custom-file"
             label="Select file"
@@ -221,7 +221,7 @@ export function NewThread(props) {
             custom
           />
         </Form.Group>
-        { threadError !== "" ? <p style={{color: 'red'}}>An error has occurred: {threadError}.</p> : "" }
+        { threadError !== "" ? <p style={{color: 'red'}}>{threadError}</p> : "" }
         <Button variant={threadStatus} type="submit" block disabled={threadStatus === 'success' ? 'disabled' : ''}>{threadStatus === 'success' ? 'Success' : `Post New ${threadType}`}</Button>
       </Form>
     </Card.Body>

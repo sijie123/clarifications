@@ -61,6 +61,9 @@ export function CommitteeExternalThreadReply(props) {
 
   const submitNewReply = (reply, threadID) => {
     return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
       dispatch(replyToThread({
         threadID: threadID,
         content: reply.replyText,
@@ -71,7 +74,7 @@ export function CommitteeExternalThreadReply(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    let text = replyOption === "Refer to comments" ? `${replyOption}: ${replyText}` : replyOption;
+    let text = replyOption === "Refer to comments" ? `${replyText}` : replyOption;
     submitNewReply({
       replyText: text,
       isExternal: true
@@ -93,7 +96,7 @@ export function CommitteeExternalThreadReply(props) {
   }
   return (
     <Form onSubmit={handleSubmit}>
-      {replyError !== "" ? <p style={{ color: 'red' }}>An error has occurred: {replyError}. Please seek assistance from your invigilator.</p> : ""}
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
       <InputGroup className="replyFragment">
         { replyOption === "Refer to comments" && (
           <InputGroup.Prepend>
@@ -130,6 +133,9 @@ export function CommitteeInternalThreadReply(props) {
 
   const submitNewReply = (reply, threadID) => {
     return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
       dispatch(replyToThread({
         threadID: threadID,
         content: reply.replyText,
@@ -161,7 +167,7 @@ export function CommitteeInternalThreadReply(props) {
   }
   return (
     <Form onSubmit={handleSubmit}>
-      {replyError !== "" ? <p style={{ color: 'red' }}>An error has occurred: {replyError}. Please seek assistance from your invigilator.</p> : ""}
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
       <InputGroup className="replyFragment">
         
           <FormControl
@@ -179,8 +185,86 @@ export function CommitteeInternalThreadReply(props) {
   )
 }
 
+export function CommitteeAnnouncementThreadReply(props) {
+  const dispatch = useDispatch();
+  const threadID = props.threadID;
+
+  const [replyText, setReplyText] = useState('');
+  const [replyStatus, setReplyStatus] = useState('warning');
+  const [replyError, setReplyError] = useState('');
+  const [prepareToSubmit, setPrepareToSubmit] = useState(false);
+
+  const submitNewReply = (reply, threadID) => {
+    return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
+      dispatch(replyToThread({
+        threadID: threadID,
+        content: reply.replyText,
+        isExternal: reply.isExternal,
+      }, resolve, reject))
+    })
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    if (prepareToSubmit) {
+      submit();
+      setPrepareToSubmit(false);
+    } else {
+      setPrepareToSubmit(true);
+      setTimeout(() => {
+        setPrepareToSubmit(false);
+      }, 3000);
+    }
+  }
+
+  const submit = (event) => {
+    
+    submitNewReply({
+      replyText: replyText,
+      isExternal: false
+    }, threadID)
+    .then(success => {
+      setReplyText('');
+      setReplyStatus('success');
+      setReplyError('');
+      setTimeout(() => {
+        setReplyStatus('warning');
+      }, 2000)
+    }).catch( err => {
+      setReplyStatus('danger');
+      setReplyError(`${err.message}`);
+      setTimeout(() => {
+        setReplyStatus('warning');
+      }, 2000)
+    })
+  }
+  return (
+    <Form onSubmit={handleSubmit}>
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
+      <InputGroup className="replyFragment">
+        
+          <FormControl
+            placeholder="Reply"
+            aria-label="Reply"
+            aria-describedby="replytext"
+            value={replyText}
+            onChange={e => setReplyText(e.target.value)}
+          />
+        <InputGroup.Append>
+          <Button variant={replyStatus} type="submit" disabled={replyStatus === 'success' ? 'disabled' : ''}><FontAwesomeIcon icon={faPaperPlane} /> {prepareToSubmit ? 'Again to Confirm' : 'Follow-up (Visible to all)'} </Button>
+        </InputGroup.Append>
+      </InputGroup>
+    </Form>
+  )
+}
+
+
 export function CommitteeAnnouncementDetails(props) {
   const thread = props.thread;
+  const threadID = props.threadID;
 
   return (
     <Card.Body>
@@ -188,6 +272,7 @@ export function CommitteeAnnouncementDetails(props) {
         <Col md={7} className={'px-2 border-right'}>
           <div className={'bg-light'} style={{paddingTop: '20px'}}>
           <Messages messages={thread.messages} />
+          <CommitteeAnnouncementThreadReply threadID={threadID} />
           </div>
         </Col>
         <Col md={5} className={'px-2 border-left'}>
@@ -206,7 +291,6 @@ export function CommitteeThreadDetails(props) {
   const threadID = props.threadID;
   const availableGroups = props.availableGroups;
   const bgcolour = props.bgcolour;
-  const replyAction = props.replyAction;
   const setCurrentlyFocusedThreadID = props.setCurrentlyFocusedThreadID;
 
   let filter = (isExternal) => ( ([, msg]) => (msg.isExternal == isExternal) )
@@ -217,7 +301,7 @@ export function CommitteeThreadDetails(props) {
         <Col md={7} className={'px-2 border-right'}>
           <div className={'bg-light'} style={{paddingTop: '20px'}}>
           <Messages messages={thread.messages} filter={filter(true)} />
-          <CommitteeExternalThreadReply replyAction={replyAction} threadID={threadID} />
+          <CommitteeExternalThreadReply threadID={threadID} />
           </div>
         </Col>
         <Col md={5} className={'px-2 border-left'}>
@@ -234,7 +318,7 @@ export function CommitteeThreadDetails(props) {
           <h4>Internal Communication</h4>
           <div className={'bg-internalComms'} style={{paddingTop: '20px'}}>
             <Messages messages={thread.messages} filter={filter(false)}/>
-            <CommitteeInternalThreadReply replyAction={replyAction} threadID={threadID} />
+            <CommitteeInternalThreadReply threadID={threadID} />
           </div>
         </Col>
       </Row>

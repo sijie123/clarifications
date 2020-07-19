@@ -56,6 +56,9 @@ export function VolunteerExternalThreadReply(props) {
 
   const submitNewReply = (reply, threadID) => {
     return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
       dispatch(replyToThread({
         threadID: threadID,
         content: reply.replyText,
@@ -88,7 +91,7 @@ export function VolunteerExternalThreadReply(props) {
   }
   return (
     <Form onSubmit={handleSubmit}>
-      {replyError !== "" ? <p style={{ color: 'red' }}>An error has occurred: {replyError}. Please seek assistance from your invigilator.</p> : ""}
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
       <InputGroup className="replyFragment">
         { replyOption === "Refer to comments" && (
           <InputGroup.Prepend>
@@ -125,6 +128,9 @@ export function VolunteerInternalThreadReply(props) {
 
   const submitNewReply = (reply, threadID) => {
     return new Promise( (resolve, reject) => {
+      if (reply.replyText.trim() === '') {
+        throw new Error("Your message cannot be empty.");
+      }
       dispatch(replyToThread({
         threadID: threadID,
         content: reply.replyText,
@@ -156,7 +162,7 @@ export function VolunteerInternalThreadReply(props) {
   }
   return (
     <Form onSubmit={handleSubmit}>
-      {replyError !== "" ? <p style={{ color: 'red' }}>An error has occurred: {replyError}. Please seek assistance from your invigilator.</p> : ""}
+      {replyError !== "" ? <p style={{ color: 'red' }}>{replyError}</p> : ""}
       <InputGroup className="replyFragment">
         
           <FormControl

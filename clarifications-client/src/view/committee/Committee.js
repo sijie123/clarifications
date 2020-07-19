@@ -8,6 +8,7 @@ import { CommitteeThreadOverview, CommitteeThreadDetails, CommitteeAnnouncementD
 import { DetailsWrapper } from "../common/DetailsWrapper";
 import { NothingSelectedThread } from "../common/NothingSelectedThread"
 import { NewThread } from '../common/NewThread'
+import { Alert } from '../common/Alert'
 import { OverviewPagination } from '../common/OverviewPagination';
 
 import React, { useState, useEffect } from 'react';
@@ -82,6 +83,7 @@ export function Committee(props) {
 
   return (
     <Container fluid className={'flexVertical flexElement'}>
+      <Alert />
       <Row style={{flexFlow:'row', minHeight: '100%'}}>
         <Col md={3} style={{flex: '1 1 auto', overflow: 'auto'}}>
           <Card className="overviewGroup">

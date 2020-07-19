@@ -29,6 +29,7 @@ export function MainUI() {
   const history = useHistory();
   
   let [filterText, setFilterText] = useState('');
+  let [refreshError, setRefreshError] = useState('');
 
   useEffect(() => {
     if (!user.isLoggedIn) history.push('/');
@@ -37,8 +38,16 @@ export function MainUI() {
   useEffect(() => {
     if (!clarificationData.shouldUpdate) return;
     dispatch(checkForUpdates())
-    .catch(err => {
-      console.log(err);
+    .catch(error => {
+      console.log(error);
+      if (error.response) {
+        if (error.response.status === 401 || error.response.status === 403) {
+          // Why are you here??
+          setRefreshError("Auth token invalid/expired. Please re-open this page using the communications link in CMS again.");
+        } else {
+          setRefreshError("We're having trouble contacting the server. Please refresh the page manually or speak to your invigilator.");
+        }
+      }
     })
   }, [clarificationData.shouldUpdate]);
 
@@ -67,7 +76,7 @@ export function MainUI() {
     <Navbar bg="light" expand="lg">
       <Navbar.Brand href="#home">Clarification System</Navbar.Brand>
       <Nav className="mr-auto"></Nav>
-      <Nav>{user.groupname} {user.displayname}</Nav>
+      <Nav>{user.displayname}</Nav>
       <Nav><Logout /></Nav>
     </Navbar>
     <Container className={'flexVertical flexElement'} fluid >
@@ -89,6 +98,7 @@ export function MainUI() {
             </InputGroup>
             </Col>
         </Row>
+        {refreshError !== "" ? <p style={{ color: 'red' }}>{refreshError}</p> : ""}
         </Container>
       <br />
       {(user.role === "CONTESTANT" ? <Contestant searchFilter={searchText(filterText)} /> : "")}

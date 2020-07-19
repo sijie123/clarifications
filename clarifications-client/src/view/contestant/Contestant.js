@@ -7,9 +7,10 @@ import Row from 'react-bootstrap/Row';
 import { ContestantThreadOverview, ContestantThreadDetails, ContestantAnnouncementDetails } from './ContestantThread'
 import { DetailsWrapper } from "../common/DetailsWrapper";
 import { NothingSelectedThread } from "../common/NothingSelectedThread"
+import { Alert } from "../common/Alert"
 import { NewThread } from '../common/NewThread'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectClarificationData } from '../../model/clarificationDataSlice';
 import '../common/Common.css';
@@ -73,6 +74,7 @@ export function Contestant(props) {
 
   return (
     <Container fluid className={'flexVertical flexElement'}>
+      <Alert />
       <Row style={{flexFlow:'row', minHeight: '100%'}}>
         <Col md={5} style={{flex: '1 1 auto', overflow: 'auto'}}>
           <Card className="overviewGroup">
