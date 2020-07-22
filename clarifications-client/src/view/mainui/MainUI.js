@@ -18,7 +18,7 @@ import { useHistory } from "react-router-dom";
 
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../../model/userSlice';
-import { checkForUpdates, requestUpdate, listTasks, selectClarificationData } from '../../model/clarificationDataSlice';
+import { checkForUpdates, requestUpdate, listTasks, selectClarificationData, updateTimestamp } from '../../model/clarificationDataSlice';
 
 import './MainUI.css';
 
@@ -38,6 +38,14 @@ export function MainUI() {
   useEffect(() => {
     if (!clarificationData.shouldUpdate) return;
     dispatch(checkForUpdates())
+    .then(success => {
+      if (refreshError !== '') {
+        console.log("We had an error previously. Force refreshing.")
+        setRefreshError('');
+        dispatch(updateTimestamp(0));
+      }
+      return;
+    })
     .catch(error => {
       console.log(error);
       if (error.response) {
@@ -47,6 +55,8 @@ export function MainUI() {
         } else {
           setRefreshError("We're having trouble contacting the server. Please refresh the page manually or speak to your invigilator.");
         }
+      } else {
+        setRefreshError("We're having problems contacting the server. Check your internet and refresh the page, or speak to your invigilator.");
       }
     })
   }, [clarificationData.shouldUpdate]);
