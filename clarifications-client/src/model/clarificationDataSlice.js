@@ -77,7 +77,6 @@ export const { onMessage, onMessages, updateTimestamp, updateSeen, logout, updat
 
 export const listTasks = () => (dispatch) => {
   return fetchTasks().then(res => {
-    console.log(res.data.tasks);
     dispatch(updateAvailableTasks(res.data.tasks))
   }).catch(err => {
     console.log(err);

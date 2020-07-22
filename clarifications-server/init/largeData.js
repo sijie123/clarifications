@@ -36,7 +36,8 @@ createUser = async (username, displayname, password, groupname) => {
     username: username,
     displayname: displayname,
     password: password,
-    groupname: groupname
+    groupname: groupname,
+    internaldisplayname: displayname,
   });
 }
 
