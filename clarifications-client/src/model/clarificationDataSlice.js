@@ -51,6 +51,11 @@ export const clarificationDataSlice = createSlice({
     logout: (state, action) => {
       state.threads = {};
       state.currentUpdateTimestamp = 0;
+      state.shouldUpdate = false;
+      state.availableGroups = [];
+      state.availableTasks = [];
+      state.shouldMakeBeep = false;
+      state.hasNewNotification = false;
     },
     updateRequired: (state, action) => {
       state.shouldUpdate = true;
