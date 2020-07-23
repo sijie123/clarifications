@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { Login } from './view/login/Login'
 import { MainUI } from './view/mainui/MainUI'
 import { selectUser } from './model/userSlice';
+
 function App() {
   const user = useSelector(selectUser);
   return (

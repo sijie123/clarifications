@@ -11,7 +11,18 @@ const reducers = combineReducers({
 
 const persistConfig = {
   key: 'root',
-  storage
+  version: 1,
+  storage,
+  migrate: (state) => {
+    console.log('Begin Migration')
+    console.log(state);
+    if (state._persist.version !== 1) {
+      console.log("New version detected. Migrating.");
+      return Promise.resolve({})
+    } else {
+      return Promise.resolve(state)
+    }
+  }
 }
 
 const persistedReducer = persistReducer(persistConfig, reducers)
