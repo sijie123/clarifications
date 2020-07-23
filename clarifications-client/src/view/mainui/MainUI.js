@@ -19,6 +19,7 @@ import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser } from '../../model/userSlice';
 import { checkForUpdates, requestUpdate, listTasks, selectClarificationData, updateTimestamp } from '../../model/clarificationDataSlice';
+import { fetchDate } from '../../model/actions';
 
 import './MainUI.css';
 
@@ -73,6 +74,17 @@ export function MainUI() {
 
   useEffect(() => {
     dispatch(listTasks());
+  }, [])
+
+  useEffect(() => {
+    fetchDate()
+    .then( ({data}) => {
+      if (data.timeToStart > 0) {
+        setTimeout(() => {
+          window.location.reload();
+        }, data.timeToStart + (5000 * Math.random()) )
+      }
+    })
   }, [])
 
   let searchText = filterText => ([,thread]) => {

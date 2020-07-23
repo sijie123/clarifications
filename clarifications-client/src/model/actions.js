@@ -64,3 +64,8 @@ export const fetchSeat = (contestantUser) => {
   const SEARCH_URI = `/api/seat/${contestantUser}`
   return POST(SEARCH_URI, {})
 }
+
+export const fetchDate = () => {
+  let config = getAxiosConfig();
+  return axios.get(`/api/date`, config)
+}
