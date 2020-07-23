@@ -121,7 +121,6 @@ export function NewThread(props) {
     setThreadStatus('success');
     setThreadError('');
     // fileInput.value = null;
-    console.log(fileInput);
     setTimeout(() => {
       setThreadStatus('primary');
     }, 2000)

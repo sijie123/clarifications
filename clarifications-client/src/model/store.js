@@ -16,7 +16,6 @@ const persistConfig = {
   storage,
   migrate: (state) => {
     console.log('Begin Migration')
-    console.log(state);
     if (state._persist.version !== CLARIFICATION_VERSION) {
       console.log("New version detected. Migrating.");
       return Promise.resolve({})

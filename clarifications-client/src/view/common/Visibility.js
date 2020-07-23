@@ -34,7 +34,6 @@ export function Visibility(props) {
 
   const handleAddGroup = (e) => {
     e.preventDefault();
-    console.log(selectedGroup);
     if (selectedGroup === '') return;
     grantAccess(threadID, selectedGroup)
     .then(setSelectedGroup(availableGroups[0]))
