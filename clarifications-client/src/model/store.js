@@ -3,6 +3,7 @@ import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import userReducer from './userSlice';
 import clarificationDataReducer from './clarificationDataSlice';
+import { CLARIFICATION_VERSION } from '../version';
 
 const reducers = combineReducers({
   user: userReducer,
@@ -11,12 +12,12 @@ const reducers = combineReducers({
 
 const persistConfig = {
   key: 'root',
-  version: 1,
+  version: CLARIFICATION_VERSION,
   storage,
   migrate: (state) => {
     console.log('Begin Migration')
     console.log(state);
-    if (state._persist.version !== 1) {
+    if (state._persist.version !== CLARIFICATION_VERSION) {
       console.log("New version detected. Migrating.");
       return Promise.resolve({})
     } else {
