@@ -34,7 +34,7 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use(AuthService.verify().unless({path: ['/api/auth', '/api/login', '/api/login/', '/api/update/loadtest', '/api/uploads/c2905ae04c1955952253fb1b27bc2e949870fdf4.jpg']}))
+app.use(AuthService.verify().unless({path: ['/api/auth', '/api/login', '/api/login/']}))
 
 const path = require('path');
 const IMAGE_DIR = path.join(__dirname, 'uploads');
