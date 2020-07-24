@@ -80,6 +80,7 @@ export function MainUI() {
     fetchDate()
     .then( ({data}) => {
       if (data.timeToStart > 0) {
+        console.log(`Contest starts in ${data.timeToStart / 1000} seconds`);
         setTimeout(() => {
           window.location.reload();
         }, data.timeToStart + (5000 * Math.random()) )

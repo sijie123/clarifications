@@ -18,7 +18,7 @@ if (AuthAdapters.length == 0) {
 
 class AuthService {
     static signToken(user) {
-        return jwt.sign(user, privateKey, { algorithm: 'RS256', expiresIn: '5h' });
+        return jwt.sign(user, privateKey, { algorithm: 'RS256', expiresIn: '24h' });
     }
     static login(req) {
         let authAttempts = AuthAdapters.map(adapter => adapter.login(req));
