@@ -10,25 +10,25 @@ const reducers = combineReducers({
   clarificationData: clarificationDataReducer,
 })
 
-const persistConfig = {
-  key: 'root',
-  version: CLARIFICATION_VERSION,
-  storage,
-  migrate: (state) => {
-    console.log('Begin Migration')
-    if (state._persist.version !== CLARIFICATION_VERSION) {
-      console.log("New version detected. Migrating.");
-      return Promise.resolve({})
-    } else {
-      return Promise.resolve(state)
-    }
-  }
-}
+// const persistConfig = {
+//   key: 'root',
+//   version: CLARIFICATION_VERSION,
+//   storage,
+//   migrate: (state) => {
+//     console.log('Begin Migration')
+//     if (!state._persist || state._persist.version !== CLARIFICATION_VERSION) {
+//       console.log("New version detected. Migrating.");
+//       return Promise.resolve({})
+//     } else {
+//       return Promise.resolve(state)
+//     }
+//   }
+// }
 
-const persistedReducer = persistReducer(persistConfig, reducers)
+// const persistedReducer = persistReducer(persistConfig, reducers)
 
 export default configureStore({
-  reducer: persistedReducer,
+  reducer: reducers,
   middleware: getDefaultMiddleware({
     serializableCheck: false,
   }),
