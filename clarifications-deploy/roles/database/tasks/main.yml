@@ -1,0 +1,12 @@
+- name: Run queries from SQL script
+  postgresql_query:
+    db: "{{ clarification_db }}"
+    path_to_script: "{{ clarification_source_folder_database }}/{{item}}"
+    login_host: "{{ cms_db_host }}"
+    login_user: "{{ clarification_db_user }}"
+    login_password: "{{ clarification_db_pass }}"
+  with_items:
+    - users.sql
+    - messages.sql
+    - plugin_contestantlocation.sql
+  run_once: true

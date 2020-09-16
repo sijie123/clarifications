@@ -1,0 +1,45 @@
+- name: Install server-side dependencies
+  npm:
+    path: "{{ clarification_source_folder_server }}"
+
+- name: Inject server config
+  template:
+    src: config.j2
+    dest: "{{ clarification_source_folder_server }}/config.js"
+
+- name: Copy users csv
+  copy:
+    src: users.csv
+    dest: "{{ clarification_source_folder_server }}/users.csv"
+
+- name: Copy JWT private key
+  copy:
+    src: "/home/{{ansible_user}}/jwtprivate.key"
+    dest: "{{ clarification_source_folder_server }}/jwtprivate.key"
+    remote_src: yes
+    mode: '0600'
+
+- name: Copy JWT public key
+  copy:
+    src: "/home/{{ansible_user}}/jwtpublic.key"
+    dest: "{{ clarification_source_folder_server }}/jwtpublic.key"
+    remote_src: yes
+    mode: '0644'
+# - name: Generate JWT private key
+#   openssl_privatekey:
+#     path: "{{ clarification_source_folder_server }}/jwtprivate.key"
+
+# - name: Generate JWT public key
+#   openssl_publickey:
+#     path: "{{ clarification_source_folder_server }}/jwtpublic.key"
+#     privatekey_path: "{{ clarification_source_folder_server }}/jwtprivate.key"
+
+- name: Initialize server
+  command:
+    cmd: node init/initCSV.js
+    chdir: "{{clarification_source_folder_server}}"
+  register: init_output
+
+- name: Init status
+  debug:
+    var: init_output

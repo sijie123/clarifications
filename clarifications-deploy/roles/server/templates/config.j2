@@ -1,0 +1,11 @@
+module.exports = {
+    DB_URI: 'postgres://{{clarification_db_user}}:{{clarification_db_pass}}@{{cms_db_host}}:{{cms_db_port}}/{{clarification_db}}',
+    CMS_DB_URI: 'postgres://{{cms_db_user}}:{{cms_db_pass}}@{{cms_db_host}}:{{cms_db_port}}/{{cms_db}}',
+    PORT: 3100,
+    plugins: ['AutoDispatcher'],
+    adapters: {'ContestantLocation': 'ContestantLocation', 'AuthService': 'AuthService', 'TaskService': 'TaskService'},
+    authAdapters: ['CMSCookieAdapter', 'UserPassAdapter'],
+    autoDispatcher: {logisticsCommittee: 'OPS', scientificCommittee: 'SCI'},
+    contest_id: {{cms_contest_id}},
+    contest_start: "{{cms_contest_start}}",
+}

@@ -1,0 +1,22 @@
+# This playbook installs Clarification Server.
+
+- name: Install GUI components
+  hosts: clarification
+  gather_facts: yes
+  strategy: free
+  vars:
+    clarification_source_folder: "/home/{{ ansible_user }}/clarification"
+    clarification_source_folder_database: "{{clarification_source_folder}}/clarifications-database"
+    clarification_source_folder_server: "{{clarification_source_folder}}/clarifications-server"
+    cms_db_host: "{{ hostvars[groups['db_master'][0]].inventory_hostname }}"
+    cms_db_port: 5432
+    clarification_db_user: 'clarificationuser'
+    clarification_db: 'clarificationdb'
+    clarification_db_pass: 'TVSiZ22KDHeUpIhdnnaW09YC4yX3o9hpZH51'
+  roles:
+    - database
+  # tasks:
+  #   - name: Run init user script
+  #     command:
+  #       cmd: node init/createuser.js
+  #       chdir: "{{clarification_source_folder_server}}"

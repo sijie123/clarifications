@@ -1,0 +1,15 @@
+- name: Install client-side dependencies
+  npm:
+    path: "{{ clarification_source_folder_client }}"
+
+- name: Build client-side static files
+  command: "npm run build"
+  args:
+    chdir: "{{ clarification_source_folder_client }}"
+  tags: build
+
+- name: Create start script
+  copy:
+    src: start.sh
+    dest: "{{ clarification_source_folder_client }}/start.sh"
+    mode: '0755'

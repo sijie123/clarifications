@@ -1,0 +1,38 @@
+- name: Update and upgrade apt packages
+  become: yes
+  ignore_errors: yes
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 # Ten days (in seconds)
+  tags: apt
+
+- name: Install necessary packages
+  become: yes
+  apt:
+    pkg:
+      - nodejs
+      - npm
+      - python3-psycopg2
+  tags: apt
+
+- name: Clean Clarification source folder
+  file:
+    state: absent
+    path: "{{ clarification_source_folder }}"
+
+- name: Download clarifications from GitHub
+  git:
+    repo: https://github.com/sijie123/clarifications
+    version: master
+    dest: "{{ clarification_source_folder }}"
+    accept_hostkey: yes
+    force: yes
+    recursive: yes
+  register: git_checkout
+
+- name: Update npm to latest
+  npm:
+    name: npm
+    global: yes
+  become: yes

@@ -1,0 +1,26 @@
+# This playbook installs Clarification Server.
+
+- name: Install GUI components
+  hosts: clarification
+  gather_facts: yes
+  strategy: free
+  vars:
+    clarification_source_folder: "/home/{{ ansible_user }}/clarification"
+    clarification_source_folder_client: "{{clarification_source_folder}}/clarifications-client"
+    clarification_source_folder_database: "{{clarification_source_folder}}/clarifications-database"
+    clarification_source_folder_server: "{{clarification_source_folder}}/clarifications-server"
+    cms_db_user: "cmsuser"
+    cms_db_pass: '5fQp2stgGXTxGsfsxD9FJLHVmGBNzX79'
+    cms_db_host: "{{ hostvars[groups['db_master'][0]].inventory_hostname }}"
+    cms_db_port: 5432
+    cms_db: "cmsdb"
+    cms_contest_id: 2
+    cms_contest_start: '2020-07-25T09:00:00+08:00'
+    clarification_db_user: 'clarificationuser'
+    clarification_db: 'clarificationdb'
+    clarification_db_pass: 'TVSiZ22KDHeUpIhdnnaW09YC4yX3o9hpZH51'
+  roles:
+    - dependencies
+    - client
+    - database
+    - server
